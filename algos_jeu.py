@@ -4,12 +4,8 @@ from constantes import *
 from generateur_html import *
 
 
-# Taille du tableau de jeu
-DIM_X = 8
-DIM_Y = 12
-
-
 # Etats possibles pour chaque case du tableau de jeu
+# les valeurs n'ont pas d'importance tant qu'elles sont différentes
 VIDE_MASQUEE = 'vm'
 VIDE_FLAG    = 'vf'
 VIDE_DEVOILE = 'vd'
@@ -17,7 +13,7 @@ BOMB_MASQUEE = 'bm'
 BOMB_FLAG    = 'bf'
 BOMB_DEVOILE = 'bd'
 
-
+##############  Fonctions utilitaires ****************
 # tests
 def est_vide( code_case ): 
     return code_case in [ VIDE_MASQUEE, VIDE_FLAG, VIDE_DEVOILE ]
@@ -32,12 +28,6 @@ def est_devoile( code_case ):
     return code_case in [ VIDE_DEVOILE, BOMB_DEVOILE]
 
 
-def init_partie_vide():
-    partie = dict()
-    partie[PARTIE_ETAT]=PARTIE_ETAT_INTIAL
-    partie['nb_requetes']=0
-    return partie
-
 
 def taille_tab_jeu(tab_jeu):
     """
@@ -47,93 +37,13 @@ def taille_tab_jeu(tab_jeu):
     return ( taille_x, taille_y)
 
 
+######################## Création d'une nouvelle partie  ######################
 
-def cases_voisines( tab_jeu, x, y ):
-    """
-    renvoie la liste des coordonnées des cases voisines
-    """
-    taille_x, taille_y = taille_tab_jeu(tab_jeu)
-    decalage_voisins = [(-1,0),     #nord
-                        (0,1),      #est    
-                        (1,0),      #sud    
-                        (0,-1),     #ouest    
-                        (-1,1),     #nord-est    
-                        (1,1),      #sud-est    
-                        (1,-1),     #sud-ouest
-                        (-1,-1),    #nord-ouest
-    ]
-
-    voisins = []
-
-    for decalage in decalage_voisins:
-        #calcule les coordonnées du voisin
-        x_voisin = x + decalage[0]
-        y_voisin = y + decalage[1]
-
-        # ignore les voisins inexistants (situés hors du tableau)
-        if( x_voisin>=0 and x_voisin<taille_x and y_voisin>=0 and y_voisin<taille_y ):
-            voisins.append((x_voisin, y_voisin))
-    return voisins
-
-
-def compte_bombes_voisines(tab_jeu, x, y):
-    """
-    renvoie le nombre de bombes qui entourent une case de coordonnées (x,y)
-    """
-    nb_bombes_voisines = 0
-    voisins = cases_voisines(tab_jeu, x,y)
-    for (x_voisin, y_voisin) in voisins:
-        voisin = tab_jeu[x_voisin][y_voisin]
-        if( est_bombe(voisin) ) :
-            nb_bombes_voisines +=1
-    return nb_bombes_voisines
-
-
-
-
-# utile pour debug en mode texte
-SYMBOLES_CONSOLE = {
-    VIDE_MASQUEE : 'x ',
-    BOMB_MASQUEE : '+ ',
-    VIDE_DEVOILE : '. ',
-    VIDE_FLAG    : 'f ',
-    BOMB_FLAG    : 'F',
-    BOMB_DEVOILE : 'B '
-}
-
-
-def formatte_tab_jeu_console( tab_jeu ):
-    """
-    Genere une représentation du tableau de jeu pour affichage dans la console
-    """
-    taille_x, taille_y = taille_tab_jeu(tab_jeu)
-    tab_txt = []
-    for x in range(taille_x):
-        ligne = []
-        for y in range(taille_y):
-            case = tab_jeu[x][y]
-            if( case==VIDE_DEVOILE ):
-                txt = str(compte_bombes_voisines( tab_jeu, x, y ))
-                if( len(txt)==1 ):
-                    txt = txt+" "
-            else:
-                txt = SYMBOLES_CONSOLE[case]
-            ligne.append(str(txt))
-
-        # transforme la liste en chaine de caracteres
-        ligne_txt = ' '.join(ligne)
-        tab_txt.append(ligne_txt)
-    return tab_txt
-
-
-
-def formatte_partie_console( partie ):
-    txt = []
-    for cle,valeur in partie.items():
-        if( cle != PARTIE_TAB ):
-            txt.append( f"{cle} = {valeur}")
-    txt = txt+formatte_tab_jeu_console(partie[PARTIE_TAB])
-    return txt
+def init_partie_vide():
+    partie = dict()
+    partie[PARTIE_ETAT]=PARTIE_ETAT_INTIAL
+    partie['nb_requetes']=0
+    return partie
 
 
 def place_bombe_aleatoire( tab_jeu ):
@@ -186,6 +96,48 @@ def nouvelle_partie( partie, params):
     partie[PARTIE_ETAT]=PARTIE_ETAT_EN_COURS
 
 
+#######################  traitement de l'action "creuser"  ####################
+
+def cases_voisines( tab_jeu, x, y ):
+    """
+    renvoie la liste des coordonnées des cases voisines
+    """
+    taille_x, taille_y = taille_tab_jeu(tab_jeu)
+    decalage_voisins = [(-1,0),     #nord
+                        (0,1),      #est    
+                        (1,0),      #sud    
+                        (0,-1),     #ouest    
+                        (-1,1),     #nord-est    
+                        (1,1),      #sud-est    
+                        (1,-1),     #sud-ouest
+                        (-1,-1),    #nord-ouest
+    ]
+
+    voisins = []
+
+    for decalage in decalage_voisins:
+        #calcule les coordonnées du voisin
+        x_voisin = x + decalage[0]
+        y_voisin = y + decalage[1]
+
+        # ignore les voisins inexistants (situés hors du tableau)
+        if( x_voisin>=0 and x_voisin<taille_x and y_voisin>=0 and y_voisin<taille_y ):
+            voisins.append((x_voisin, y_voisin))
+    return voisins
+
+
+def compte_bombes_voisines(tab_jeu, x, y):
+    """
+    renvoie le nombre de bombes qui entourent une case de coordonnées (x,y)
+    """
+    nb_bombes_voisines = 0
+    voisins = cases_voisines(tab_jeu, x,y)
+    for (x_voisin, y_voisin) in voisins:
+        voisin = tab_jeu[x_voisin][y_voisin]
+        if( est_bombe(voisin) ) :
+            nb_bombes_voisines +=1
+    return nb_bombes_voisines
+
 
 def creuse(partie, x, y):
 
@@ -209,6 +161,10 @@ def creuse(partie, x, y):
                 case_voisine = tab_jeu[x_voisin][y_voisin]
                 if( not est_devoile(case_voisine) ):
                     creuse(partie, x_voisin, y_voisin)
+
+
+#######################  traitement de l'action "placer/retirer drapeau"  ####################
+
 
 def test_victoire(tab_jeu):
     return False
@@ -238,6 +194,8 @@ def drapeau(partie, x, y ):
         partie[PARTIE_ETAT]=PARTIE_ETAT_GAGNE
 
 
+
+#########################  point d'entrée pour traiter les requetes entrantes ################
 
 def traite_action(partie, action, params):
     """
@@ -282,6 +240,54 @@ def traite_action(partie, action, params):
 
     # Envoi vers l'utilisateur
     return (True, html)
+
+
+########################  Tests et aides pour le développement ########################
+
+# utile pour afficher la tableau de jeu au format texte
+SYMBOLES_CONSOLE = {
+    VIDE_MASQUEE : 'X ',
+    BOMB_MASQUEE : 'Xb',
+    VIDE_DEVOILE : '. ',   # remplacé par le nb de bombes dans les cases voisines au moment de l'affichage
+    VIDE_FLAG    : 'F ',
+    BOMB_FLAG    : 'Fb',
+    BOMB_DEVOILE : 'B '
+}
+
+def formatte_tab_jeu_console( tab_jeu ):
+    """
+    Genere une représentation du tableau de jeu en format texte 
+    """
+    taille_x, taille_y = taille_tab_jeu(tab_jeu)
+    tab_txt = []
+    for x in range(taille_x):
+        ligne = []
+        for y in range(taille_y):
+            case = tab_jeu[x][y]
+            if( case==VIDE_DEVOILE ):
+                txt = str(compte_bombes_voisines( tab_jeu, x, y ))
+                if( len(txt)==1 ):
+                    txt = txt+" "
+            else:
+                txt = SYMBOLES_CONSOLE[case]
+            ligne.append(str(txt))
+
+        # transforme la liste en chaine de caracteres
+        ligne_txt = ' '.join(ligne)
+        tab_txt.append(ligne_txt)
+    return tab_txt
+
+
+def formatte_partie_console( partie ):
+    """
+    Genere une représenation de toutes les données de la partie en format texte
+    """
+    txt = []
+    for cle,valeur in partie.items():
+        if( cle != PARTIE_TAB ):
+            txt.append( f"{cle} = {valeur}")
+    txt = txt+formatte_tab_jeu_console(partie[PARTIE_TAB])
+    return txt
 
 
 def teste_algorithmes():
