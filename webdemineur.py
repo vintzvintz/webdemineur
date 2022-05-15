@@ -11,6 +11,10 @@ EXTENSIONS_FICHIERS_STATIQUES = [ ".css",    # feuille de style
                                  ".png"]    # images
 
 
+# conversion en entiers de certains parametres 
+# les autres sont traités comme de chaines de caractères
+PARAMETRES_NUMERIQUES = ['x','y']
+
 # Variable globale contenant les données de la partie en cours
 # sera rempli par les fonctions dans algos_jeu.py
 partie = init_partie_vide()
@@ -41,9 +45,16 @@ def decode_parametres(chaine):
         if( len(paire) not in [1,2] ):
             # cas non prévu
             print( f"Erreur : les parametres de la requete sont invalides : {chaine}" )
+
+        cle = paire[0]
+        valeur = paire[1]
+
+        # conversion en entier des coordonnées
+        if (cle in PARAMETRES_NUMERIQUES):
+            valeur = int(valeur)
         
         # ajoute au dictionnaire
-        params[paire[0]] = paire[1]
+        params[cle] =  valeur
 
     return params
 
@@ -137,7 +148,7 @@ def run():
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer( ("", PORT_HTTP), DemineurRequestHandler) as httpd:
         httpd.allow_reuse_address=True
-        print("Serveur ouvert sur le port ", PORT_HTTP)
+        print( f"Serveur ouvert sur http://127.0.0.1:{PORT_HTTP}")
 
         httpd.serve_forever()
 
