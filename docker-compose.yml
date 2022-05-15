@@ -1,0 +1,13 @@
+services:
+  demineur:
+    build: .
+
+    restart: always
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.network=traefik.lan"
+      - "traefik.http.routers.to-demineur.rule=Host(`demineur.vintz.fr`)"
+      - "traefik.http.routers.to-demineur.tls.certresolver=vintz-wildcard"
+      - "traefik.http.routers.to-demineur.tls.domains[0].main=*.vintz.fr"  
+      - "traefik.http.services.demineur.loadbalancer.server.port=80"      
