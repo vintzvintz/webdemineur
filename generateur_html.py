@@ -199,11 +199,11 @@ def genere_html_partie( partie ):
     #           etc...
 
 
-    temps = time.time() - partie[PARTIE_HEURE_DEBUT]
+    temps = int(time.time() - partie[PARTIE_HEURE_DEBUT])
     print( f"Durée écoulée = {temps} ")
 
-    css = genere_css_grille( nb_x, nb_y, 60)
-    body = f"<p>Durée écoulée = {temps} </p>"
+    css = genere_css_grille( nb_x, nb_y, 40)
+    body = f"<p>Durée écoulée = {temps} secondes </p>"
     body += genere_html_tab_jeu( partie )
     return genere_page_html_complete( titre="Partie en cours", style=css, body=body)
 

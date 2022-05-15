@@ -5,7 +5,6 @@ from generateur_html import *
 
 
 ######################## Création d'une nouvelle partie  ######################
-
 def init_partie_vide():
     partie = dict()
     partie[PARTIE_ETAT]=PARTIE_ETAT_INTIAL
@@ -151,7 +150,6 @@ def traite_action(partie, action, params):
         pass  
         #erreur action inconnue
 
-
     # A compléter
     # dévoiler toutes les cases y compris les bombes si la partie est perdue ou gagnée ( condition sur partie[ETAT_PARTIE] )
 
@@ -161,12 +159,12 @@ def traite_action(partie, action, params):
     for ligne in donnees:
         print( ligne )
 
-
     # Pour tester
     # body = "<br>".join(donnees)
     # html = genere_page_html_complete( "Wesh bro", "<pre>"+body+"</pre>")
 
     # genere la page HTML correspondant à la nouvelle partie
+    
     html = genere_html_partie(partie)
 
     # Envoi vers l'utilisateur

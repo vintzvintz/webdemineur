@@ -132,7 +132,7 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
                 # contenu = message d'erreur éventuel ou page HTML en cas de succès
                 contenu_reponse = contenu
 
-        else:  #( not action == 'erreur' ):
+        else:
             # Erreur 404 si l'action est inconnue
             code_reponse = 404
             contenu_reponse = "Ressource non trouvée"
@@ -170,7 +170,6 @@ def run():
     with socketserver.TCPServer( ("", port), DemineurRequestHandler) as httpd:
         httpd.allow_reuse_address=True
         print( f"Serveur ouvert sur le port {port}")
-
         httpd.serve_forever()
 
 if (__name__ == "__main__" ):
