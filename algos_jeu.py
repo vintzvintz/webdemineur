@@ -1,40 +1,7 @@
 
-import random
-from constantes import *
+import random, time
+from commun import *
 from generateur_html import *
-
-
-# Etats possibles pour chaque case du tableau de jeu
-# les valeurs n'ont pas d'importance tant qu'elles sont différentes
-VIDE_MASQUEE = 'vm'
-VIDE_FLAG    = 'vf'
-VIDE_DEVOILE = 'vd'
-BOMB_MASQUEE = 'bm'
-BOMB_FLAG    = 'bf'
-BOMB_DEVOILE = 'bd'
-
-##############  Fonctions utilitaires ****************
-# tests
-def est_vide( code_case ): 
-    return code_case in [ VIDE_MASQUEE, VIDE_FLAG, VIDE_DEVOILE ]
-
-def est_bombe( code_case ):
-    return code_case in [ BOMB_MASQUEE, BOMB_FLAG, BOMB_DEVOILE ]
-
-def est_drapeau( code_case ):
-    return code_case in [ VIDE_FLAG, BOMB_FLAG]
-
-def est_devoile( code_case ):
-    return code_case in [ VIDE_DEVOILE, BOMB_DEVOILE]
-
-
-
-def taille_tab_jeu(tab_jeu):
-    """
-    """
-    taille_x = len(tab_jeu)
-    taille_y = len(tab_jeu[0])
-    return ( taille_x, taille_y)
 
 
 ######################## Création d'une nouvelle partie  ######################
@@ -94,49 +61,10 @@ def nouvelle_partie( partie, params):
     # met à jour les autres paramètres
     partie[PARTIE_MODE]=mode
     partie[PARTIE_ETAT]=PARTIE_ETAT_EN_COURS
+    partie[PARTIE_HEURE_DEBUT] = time.time()
 
 
 #######################  traitement de l'action "creuser"  ####################
-
-def cases_voisines( tab_jeu, x, y ):
-    """
-    renvoie la liste des coordonnées des cases voisines
-    """
-    taille_x, taille_y = taille_tab_jeu(tab_jeu)
-    decalage_voisins = [(-1,0),     #nord
-                        (0,1),      #est    
-                        (1,0),      #sud    
-                        (0,-1),     #ouest    
-                        (-1,1),     #nord-est    
-                        (1,1),      #sud-est    
-                        (1,-1),     #sud-ouest
-                        (-1,-1),    #nord-ouest
-    ]
-
-    voisins = []
-
-    for decalage in decalage_voisins:
-        #calcule les coordonnées du voisin
-        x_voisin = x + decalage[0]
-        y_voisin = y + decalage[1]
-
-        # ignore les voisins inexistants (situés hors du tableau)
-        if( x_voisin>=0 and x_voisin<taille_x and y_voisin>=0 and y_voisin<taille_y ):
-            voisins.append((x_voisin, y_voisin))
-    return voisins
-
-
-def compte_bombes_voisines(tab_jeu, x, y):
-    """
-    renvoie le nombre de bombes qui entourent une case de coordonnées (x,y)
-    """
-    nb_bombes_voisines = 0
-    voisins = cases_voisines(tab_jeu, x,y)
-    for (x_voisin, y_voisin) in voisins:
-        voisin = tab_jeu[x_voisin][y_voisin]
-        if( est_bombe(voisin) ) :
-            nb_bombes_voisines +=1
-    return nb_bombes_voisines
 
 
 def creuse(partie, x, y):
@@ -218,11 +146,14 @@ def traite_action(partie, action, params):
     elif( action == ACTION_CREUSE ):
         creuse( partie, params[COORD_X], params[COORD_Y] )
     elif( action == ACTION_FLAG ):
-        drapeau( partie, params )
+        drapeau( partie, params[COORD_X], params[COORD_Y] )
     else:
         pass  
         #erreur action inconnue
 
+
+    # A compléter
+    # dévoiler toutes les cases y compris les bombes si la partie est perdue ou gagnée ( condition sur partie[ETAT_PARTIE] )
 
     # affichage dans la console (pour debug)
     donnees = [ f"action = {action} {params}"]
@@ -232,11 +163,11 @@ def traite_action(partie, action, params):
 
 
     # Pour tester
-    body = "<br>".join(donnees)
-    html = genere_page_html_complete( "Wesh bro", "<pre>"+body+"</pre>")
+    # body = "<br>".join(donnees)
+    # html = genere_page_html_complete( "Wesh bro", "<pre>"+body+"</pre>")
 
-    # A COMPLETER
-    # html = genere_html_partie(partie)
+    # genere la page HTML correspondant à la nouvelle partie
+    html = genere_html_partie(partie)
 
     # Envoi vers l'utilisateur
     return (True, html)

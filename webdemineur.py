@@ -2,21 +2,21 @@ from http.server import SimpleHTTPRequestHandler
 import socketserver
 
 # permet d'appeler les fonctions définies dans d'autres fichiers
-from constantes import *
+from commun import *
 from algos_jeu import *
 
 PORT_HTTP = 8000
 
-EXTENSIONS_FICHIERS_STATIQUES = [ ".css",    # feuille de style
+EXTENSIONS_FICHIERS_STATIQUES = [ ".css",    # feuille de style statique
                                  ".png"]    # images
 
 
-# conversion en entiers de certains parametres 
+# conversion en entiers de certains parametres des requetes
 # les autres sont traités comme de chaines de caractères
-PARAMETRES_NUMERIQUES = ['x','y']
+PARAMETRES_NUMERIQUES = [COORD_X, COORD_Y]
 
 # Variable globale contenant les données de la partie en cours
-# sera rempli par les fonctions dans algos_jeu.py
+# sera rempli et modifié par des fonctions dans algos_jeu.py
 partie = init_partie_vide()
 
 
@@ -91,7 +91,7 @@ def analyse_requete(path):
     return ('erreur',None)
 
 
-# Utilisation HTTPRequestHandler inspiré d'exemples trouvés sur internet
+# Utilisation HTTPRequestHandler mystérieuse ... inspiré d'exemples trouvés sur internet
 class DemineurRequestHandler( SimpleHTTPRequestHandler ):
     """
     Traitement des requetes reçues par le serveur
@@ -113,8 +113,8 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
         if( action == 'statique' ):
             return super().do_GET()
 
-        # pour les actions de jeu, on appelle traite_action() et on transfère son résultat au client 
-        # traite_action doit renvoyer du html
+        # pour les actions de jeu, on appelle traite_action() et on transfère le résultat au client 
+        # traite_action doit renvoyer une page html complete et valide
 
         # Réponse par défaut = erreur
         code_reponse = 500
@@ -143,6 +143,8 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
         self.wfile.write(contenu_reponse.encode())
 
 
+####################### Point d'entrée principal de l'application ######################""
+
 def run():
     # Code magique trouvé sur internet pour lancer un serveur HTTP
     socketserver.TCPServer.allow_reuse_address = True
@@ -152,9 +154,7 @@ def run():
 
         httpd.serve_forever()
 
-
 if (__name__ == "__main__" ):
-    # init_tableau_jeu(DIM_X, DIM_Y, 10)
     run()
 
 
