@@ -145,22 +145,31 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
 
 ####################### Point d'entrée principal de l'application ######################""
 import argparse
+import os
+
+def get_port():
+
+    # variable d'environnement ou valeur par défaut
+    port=os.getenv("PORT_HTTP")
+    if( not port):
+        port=PORT_HTTP
+
+    # la ligne de commande est prioritaire sur la variable d'environnement
+    parser = argparse.ArgumentParser( description="Serveur de démineur" )
+    parser.add_argument( '-p', '--port', action='store', dest='port', default=port, type=int,
+        help="Port où le serveur attend les connexions")
+    args = parser.parse_args()
+    return args.port
 
 
 def run():
 
-    # recupere le port HTTP sur la ligne de commande
-    parser = argparse.ArgumentParser( description="Serveur de démineur" )
-    parser.add_argument( '-p', '--port', action='store', dest='port', default=PORT_HTTP, type=int,
-        help="Port où le serveur attend les connexions")
-    args = parser.parse_args()
-    port_http = args.port
-
     # Code magique trouvé sur internet pour lancer le serveur HTTP inclus avec Python
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer( ("", port_http), DemineurRequestHandler) as httpd:
+    port = get_port()
+    with socketserver.TCPServer( ("", port), DemineurRequestHandler) as httpd:
         httpd.allow_reuse_address=True
-        print( f"Serveur ouvert sur le port {port_http}")
+        print( f"Serveur ouvert sur le port {port}")
 
         httpd.serve_forever()
 
