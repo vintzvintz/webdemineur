@@ -1,0 +1,87 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title> test </title>
+  
+    <!--    Inspiré du tutorial mozilla -->
+    <!-- https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids -->
+
+    <style>
+
+        body {
+            width: 90%;
+            max-width: 1000px;
+            margin: 1em auto;
+            font: .9em/1.2 Arial, Helvetica, sans-serif;
+        }
+
+        .tabjeu > div {
+            border-radius: 3px;
+            padding: 5px;
+            border: 1px solid rgb(79,185,227);
+        }
+
+        .tabjeu {
+            display: grid;
+            gap: 1px;
+            grid-template-columns: repeat(5, 80px);
+            grid-template-rows: repeat(5, 80px);
+        }
+        .masque {
+            background-color: rgb(200,180,220);
+        }
+        .devoile {
+            background-color: rgb(200,180,220);
+        }
+        .flag {
+            background-color: rgb(57,232,99);
+            background-image: url('drapeau.png');
+        }
+        .bombe {
+            background-color: rgb(207,32,20);
+            background-image: url('bombe.png');
+        }
+        
+    </style>
+
+</head>
+<body>
+    <div class="tabjeu">
+        <div>
+            <!-- element cliquable pour poser ou retirer un drapeau -->
+            <a href="/drapeau?x=0&y=0">Drapeau</a>
+            <!-- element cliquable pour creuser la case  -->
+            <a href="/creuse?x=0&y=0">Creuse</a> 
+        </div>
+
+        <div class="masque">
+            Masqué
+        </div>
+        <div class="devoile">
+            Devoilé<br>[nb voisins]
+        </div>
+        <div class="flag">
+            Avec drapeau
+        </div>
+        <div class="bombe">
+            Devoile bombe
+        </div>
+        <div>Six</div>
+        <div>Seven</div>
+        <div>One</div>
+        <div>Two</div>
+        <div>Three</div>
+        <div>Four</div>
+        <div>Five</div>
+        <div>Six</div>
+        <div>Seven</div>
+        <div>One</div>
+        <div>Two</div>
+        <div>Three</div>
+        <div>Four</div>
+        <div>Five</div>
+        <div>Six</div>
+        <div>Seven</div>
+    </div>
+</body>
+</html>
