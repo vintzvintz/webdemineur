@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:3.10-slim
 
 ENV PORT_HTTP 80
 
