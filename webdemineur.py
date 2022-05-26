@@ -5,10 +5,10 @@ import socketserver
 from commun import *
 from algos_jeu import *
 
-PORT_HTTP = 8000
+PORT_HTTP = 8000 # peut être modifié
 
-EXTENSIONS_FICHIERS_STATIQUES = [ ".css",    # feuille de style statique
-                                 ".png"]    # images
+EXTENSIONS_FICHIERS_STATIQUES = [ ".css",    # feuille de style
+                                  ".png"]    # images
 
 
 # conversion en entiers de certains parametres des requetes
@@ -59,39 +59,37 @@ def decode_parametres(chaine):
     return params
 
 
-
 def analyse_requete(path):
     """
     détermine si la requete concerne un fichier ou une action de jeu
-
     renvoie une paire
-    ('statique', None) pour les ressources statiques
+    ('statique', None) pour les ressources statiques ( les images )
     ('intro', None) pour la page d'accueil
     (nom_action, dict(parametres) ) pour les actions de jeu
     ('erreur', None ) si la requete est invalide
     """
 
     # cas particulier pour la page d'accueil
-    if( path== "/" or path==""):
+    if( path == "/" or path == ""):
         return (ACTION_INTRO, None)
 
     # Est-ce une action de jeu ?
     for action in LISTE_ACTIONS:
-        if( path.startswith( '/'+action ) ):
-            params_chaine = path[ len(action)+2 : ]     # recupere la partie "paramètres" de la requete
-            params = decode_parametres(params_chaine)
+        if( path.startswith( '/' + action ) ):
+            params_chaine = path[ len(action) + 2 : ]     # recupere la partie "paramètres" de la requete
+            params = decode_parametres( params_chaine )
             return ( action, params )
 
     # Est-ce une ressource statique ?
-    extension = path[-4:]
+    extension = path[-4:]    # pour vérifier si le fichier est .png, .css...
     if( extension in EXTENSIONS_FICHIERS_STATIQUES ):
-        return ('statique', path)
+        return ( 'statique', path )
 
     # Est-ce autre chose qu'une action ou une ressource ?
-    return ('erreur',None)
+    return ( 'erreur', None )
 
 
-# Utilisation HTTPRequestHandler mystérieuse ... inspiré d'exemples trouvés sur internet
+# Utilisation HTTPRequestHandler, trouvée sur internet et modifiée
 class DemineurRequestHandler( SimpleHTTPRequestHandler ):
     """
     Traitement des requetes reçues par le serveur
@@ -107,7 +105,7 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
 
         print( self.requestline )
 
-        action,params = analyse_requete(self.path)
+        action, params = analyse_requete(self.path)
 
         # pour les ressources statiques, on appelle la fonction do_GET d'origine de SimpleHTTPRequestHandler qui s'occupe de tout
         if( action == 'statique' ):
@@ -122,20 +120,20 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
 
         if( action in LISTE_ACTIONS ):
             # execute l'action de jeu sur la partie en cours, avec les paramètres indiqués
-            succes, contenu = traite_action(partie, action, params)
+            succes, contenu = traite_action( partie, action, params )
 
             # change le code de réponse par défaut en cas de succès
-            if(succes):
+            if( succes ):
                 code_reponse = 200
 
-            if(contenu):
+            if( contenu ):
                 # contenu = message d'erreur éventuel ou page HTML en cas de succès
                 contenu_reponse = contenu
 
         else:
             # Erreur 404 si l'action est inconnue
             code_reponse = 404
-            contenu_reponse = "Ressource non trouvée"
+            contenu_reponse = "Ressource introuvable"
 
         self.send_response( code_reponse )
         self.send_header('content-type','text/html; charset=utf-8')
@@ -143,36 +141,17 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
         self.wfile.write(contenu_reponse.encode())
 
 
-####################### Point d'entrée principal de l'application ######################""
-import argparse
-import os
-
-def get_port():
-
-    # variable d'environnement ou valeur par défaut
-    port=os.getenv("PORT_HTTP")
-    if( not port):
-        port=PORT_HTTP
-
-    # la ligne de commande est prioritaire sur la variable d'environnement
-    parser = argparse.ArgumentParser( description="Serveur de démineur" )
-    parser.add_argument( '-p', '--port', action='store', dest='port', default=port, type=int,
-        help="Port où le serveur attend les connexions")
-    args = parser.parse_args()
-    return args.port
-
+####################### Point d'entrée principal de l'application #######################
 
 def run():
-
-    # Code magique trouvé sur internet pour lancer le serveur HTTP inclus avec Python
+    # Code trouvé sur internet pour lancer un serveur HTTP
     socketserver.TCPServer.allow_reuse_address = True
-    port = get_port()
-    with socketserver.TCPServer( ("", port), DemineurRequestHandler) as httpd:
+    with socketserver.TCPServer( ("", PORT_HTTP), DemineurRequestHandler) as httpd:
         httpd.allow_reuse_address=True
-        print( f"Serveur ouvert sur le port {port}")
+        print( f"\nServeur ouvert sur http://127.0.0.1:{PORT_HTTP}\n")
+
         httpd.serve_forever()
 
 if (__name__ == "__main__" ):
     run()
-
 

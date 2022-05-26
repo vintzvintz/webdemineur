@@ -10,7 +10,7 @@ PARTIE_HEURE_DEBUT = "heure_debut"
 PARTIE_MODE = "mode"
 PARTIE_MODE_FACILE = "facile"
 PARTIE_MODE_NORMAL = "normal"
-PARTIE_MODE_HARCORE = "hardcore"
+PARTIE_MODE_HARDCORE = "hardcore"
 
 
 # etat de la partie
@@ -41,6 +41,7 @@ CHEMIN_RESSOURCES = "/fichiers"
 COORD_X = "x"
 COORD_Y = "y"
 
+
 ##########################################################
 
 #  code déplacé ici pour éviter des erreurs d'import 
@@ -49,6 +50,7 @@ COORD_Y = "y"
 
 # Etats possibles pour chaque case du tableau de jeu
 # les valeurs n'ont pas d'importance tant qu'elles sont différentes
+
 VIDE_MASQUEE = 'vm'
 VIDE_FLAG    = 'vf'
 VIDE_DEVOILE = 'vd'
@@ -57,37 +59,65 @@ BOMB_FLAG    = 'bf'
 BOMB_DEVOILE = 'bd'
 
 
+##########################################################
+# déplacé ici pour qu'on puisse le modifier
 
-##############  Fonctions utilitaires ######################
+TAILLE_CASE = 60
+
+############## Fonctions utilitaires ######################
+
 # tests
-def est_vide( code_case ): 
+
+def est_vide( code_case ):
+    """
+    Verifie si la case est vide
+    """ 
     return code_case in [ VIDE_MASQUEE, VIDE_FLAG, VIDE_DEVOILE ]
 
+
 def est_bombe( code_case ):
+    """
+    Verifie si la case contient une bombe
+    """ 
     return code_case in [ BOMB_MASQUEE, BOMB_FLAG, BOMB_DEVOILE ]
 
+
 def est_drapeau( code_case ):
-    return code_case in [ VIDE_FLAG, BOMB_FLAG]
+    """
+    Verifie si la case a un drapeau
+    """ 
+    return code_case in [ VIDE_FLAG, BOMB_FLAG ]
+
 
 def est_devoile( code_case ):
-    return code_case in [ VIDE_DEVOILE, BOMB_DEVOILE]
+    """
+    Verifie si la case est dévoilée
+    """ 
+    return code_case in [ VIDE_DEVOILE, BOMB_DEVOILE ]
+
+
+def est_masquee( code_case ):
+    """
+    Vérifie si la case est masquée
+    """
+    return code_case in [ VIDE_MASQUEE, BOMB_MASQUEE ]
 
 
 # evite de passer les dimensions du jeu en paramètres à toutes les fonctions
 def taille_tab_jeu(tab_jeu):
     """
+    Renvoie la taille des lignes et des colonnes de la grille
     """
     taille_x = len(tab_jeu)
     taille_y = len(tab_jeu[0])
     return ( taille_x, taille_y)
 
 
-
 def cases_voisines( tab_jeu, x, y ):
     """
-    renvoie la liste des coordonnées des cases voisines
+    Renvoie la liste des coordonnées des cases voisines
     """
-    taille_x, taille_y = taille_tab_jeu(tab_jeu)
+    taille_x, taille_y = taille_tab_jeu( tab_jeu )
     decalage_voisins = [(-1,0),     #nord
                         (0,1),      #est    
                         (1,0),      #sud    
@@ -106,19 +136,52 @@ def cases_voisines( tab_jeu, x, y ):
         y_voisin = y + decalage[1]
 
         # ignore les voisins inexistants (situés hors du tableau)
-        if( x_voisin>=0 and x_voisin<taille_x and y_voisin>=0 and y_voisin<taille_y ):
-            voisins.append((x_voisin, y_voisin))
+        if( x_voisin >= 0 and x_voisin < taille_x and y_voisin >= 0 and y_voisin < taille_y ):
+            voisins.append( ( x_voisin, y_voisin ) )
     return voisins
 
 
-def compte_bombes_voisines(tab_jeu, x, y):
+def compte_bombes_voisines( tab_jeu, x, y ):
     """
-    renvoie le nombre de bombes qui entourent une case de coordonnées (x,y)
+    Renvoie le nombre de bombes qui entourent une case de coordonnées (x,y)
     """
     nb_bombes_voisines = 0
-    voisins = cases_voisines(tab_jeu, x,y)
-    for (x_voisin, y_voisin) in voisins:
+    voisins = cases_voisines( tab_jeu, x, y )
+    for ( x_voisin, y_voisin ) in voisins:
         voisin = tab_jeu[x_voisin][y_voisin]
         if( est_bombe(voisin) ) :
             nb_bombes_voisines +=1
+
     return nb_bombes_voisines
+
+
+def devoile( partie ):
+    """
+    Dévoile toutes les cases de la grille
+    """
+    tabj = partie[PARTIE_TAB]
+    x, y = taille_tab_jeu(tabj)
+
+    for ligne in range(len(tabj)):
+        for case in range(x):
+
+            code_case = tabj[ligne][case]
+
+            if est_devoile( code_case ):
+                continue
+
+
+            if est_masquee( code_case ):
+                if est_bombe ( code_case ):
+                    tabj[ligne][case] = BOMB_DEVOILE
+
+                if est_vide( code_case ): 
+                    tabj[ligne][case] = VIDE_DEVOILE 
+
+
+            if est_drapeau( code_case ):
+                if est_bombe ( code_case ):
+                    tabj[ligne][case] = BOMB_DEVOILE
+
+                if est_vide( code_case ): 
+                    tabj[ligne][case] = VIDE_DEVOILE
