@@ -11,12 +11,12 @@ def init_serveur():
     Il sera complété par nouvelle_partie() quand le joueur demande le lancement d'une nouvelle partie
     """
     partie = dict()
-    partie[PARTIE_ETAT]=PARTIE_ETAT_INTIAL
+    partie[PARTIE_ETAT] = PARTIE_ETAT_INTIAL
     partie['nb_requetes'] = 0
     return partie
 
 
-def place_bombe_aleatoire( tab_jeu ):
+def place_bombe_aleatoire(tab_jeu):
     """
     Ajoute une bombe non dévoilée sur le tableau à un emplacement aléatoire
     """
@@ -27,7 +27,7 @@ def place_bombe_aleatoire( tab_jeu ):
         x = random.randint(0, taille_x-1)
         y = random.randint(0, taille_y-1)
         contenu_case = tab_jeu[x][y]
-        if( est_vide(contenu_case) ):
+        if(est_vide(contenu_case)):
             tab_jeu[x][y] = BOMB_MASQUEE
             break
     return tab_jeu
@@ -108,11 +108,14 @@ def test_victoire(tab_jeu):
     Si il y a un drapeau sur une case vide ou si il y a une bombe sans drapeau, la 
     partie n'est pas gagnée
     """
+
     for ligne in tab_jeu:
         for case in ligne :
             if ( case in [BOMB_MASQUEE, VIDE_FLAG] ):
                 return False
+
     return True
+
 
 
 def drapeau(partie, x, y ):
@@ -145,25 +148,7 @@ def drapeau(partie, x, y ):
 
 
 
-####################### traitement de l'action "abandonner" et recommencer #######################
-
-def devoile( partie ):
-    """
-    Dévoile toutes les cases de la grille
-    """
-    tabj = partie[PARTIE_TAB]
-    taille_x, taille_y = taille_tab_jeu(tabj)
-
-    for ligne in range(taille_x ):
-        for case in range(taille_y):
-
-            code_case = tabj[ligne][case]
-
-            if est_bombe ( code_case ):
-                tabj[ligne][case] = BOMB_DEVOILE
-            else: 
-                # si la case ne contient pas de bombe elle est forcément vide
-                tabj[ligne][case] = VIDE_DEVOILE 
+####################### traitement de l'action "abandonner" ou partie terminée #######################
 
 
 def abandonne(partie):

@@ -156,3 +156,21 @@ def compte_bombes_voisines( tab_jeu, x, y ):
 
     return nb_bombes_voisines
 
+
+def devoile( partie ):
+    """
+    Dévoile toutes les cases de la grille
+    """
+    tabj = partie[PARTIE_TAB]
+    taille_x, taille_y = taille_tab_jeu(tabj)
+
+    for ligne in range(taille_x ):
+        for case in range(taille_y):
+
+            code_case = tabj[ligne][case]
+
+            if est_bombe ( code_case ):
+                tabj[ligne][case] = BOMB_DEVOILE
+            else: 
+                # si la case ne contient pas de bombe elle est forcément vide
+                tabj[ligne][case] = VIDE_DEVOILE 
