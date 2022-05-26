@@ -167,21 +167,8 @@ def devoile( partie ):
 
             code_case = tabj[ligne][case]
 
-            if est_devoile( code_case ):
-                continue
-
-
-            if est_masquee( code_case ):
-                if est_bombe ( code_case ):
-                    tabj[ligne][case] = BOMB_DEVOILE
-
-                if est_vide( code_case ): 
-                    tabj[ligne][case] = VIDE_DEVOILE 
-
-
-            if est_drapeau( code_case ):
-                if est_bombe ( code_case ):
-                    tabj[ligne][case] = BOMB_DEVOILE
-
-                if est_vide( code_case ): 
-                    tabj[ligne][case] = VIDE_DEVOILE
+            if est_bombe ( code_case ):
+                tabj[ligne][case] = BOMB_DEVOILE
+            else: 
+                # si la case ne contient pas de bombe elle est forcément vide
+                tabj[ligne][case] = VIDE_DEVOILE 
