@@ -108,14 +108,11 @@ def test_victoire(tab_jeu):
     Si il y a un drapeau sur une case vide ou si il y a une bombe sans drapeau, la 
     partie n'est pas gagnée
     """
-
     for ligne in tab_jeu:
         for case in ligne :
             if ( case in [BOMB_MASQUEE, VIDE_FLAG] ):
                 return False
-
     return True
-
 
 
 def drapeau(partie, x, y ):
@@ -148,7 +145,7 @@ def drapeau(partie, x, y ):
 
 
 
-####################### traitement de l'action "abandonner" ou partie terminée #######################
+####################### traitement de l'action "abandonner" et recommencer #######################
 
 def devoile( partie ):
     """
@@ -174,8 +171,13 @@ def abandonne(partie):
     partie[PARTIE_ETAT] = PARTIE_ETAT_PERDU
 
 
+def recommence(partie):
+    partie[PARTIE_ETAT] = PARTIE_ETAT_INTIAL
+
+
 
 ####################### point d'entrée pour traiter les requetes entrantes #######################
+
 
 def traite_action(partie, action, params):
     """
@@ -189,15 +191,16 @@ def traite_action(partie, action, params):
     partie['nb_requetes'] += 1
     etat_partie = partie[PARTIE_ETAT]
 
+
+    # on commnence par traiter les actions avant 
     try:
 
         if( action == ACTION_NOUVELLE_PARTIE ):
             nouvelle_partie(partie, params)
 
-        elif( action == ACTION_INTRO ):
-            # on n'affiche l'intro que si la partie n'est pas en cours
-            if( not etat_partie == PARTIE_ETAT_EN_COURS ):
-                return genere_html_intro()
+        elif( action == ACTION_INTRO  ):
+            # cette action ne modife pas l'état de la partie
+            pass
 
         elif( action == ACTION_CREUSE ):
             creuse( partie, params[COORD_X], params[COORD_Y] )
@@ -207,7 +210,10 @@ def traite_action(partie, action, params):
 
         elif( action == ACTION_ABANDON ):
             abandonne(partie)
-        
+
+        elif( action == ACTION_RECOMMENCE ):
+            recommence(partie)
+
         else:
             print("Il y a un problème dans l'algorithme de traitment des actions de jeu")
 
@@ -218,15 +224,19 @@ def traite_action(partie, action, params):
         print("Erreur ignoree : ")
         print(e)
 
-    # affichage dans la console (pour debug)
-    donnees = [ f"action = {action} {params}"]
-    donnees += formatte_partie_console( partie )
-    for ligne in donnees:
-        print( ligne )
+    # affichage dans la console 
+    debug_partie_console( partie, action, params )
 
-    # genere la page HTML correspondant à la partie en cours
-    return genere_html_partie( partie )
+    # genere la page HTML selon l'état de la partie après le traitement de l'action
+    #  ou bien la page d'accueil si aucune partie n'est en cours
+    if( partie[PARTIE_ETAT] in [PARTIE_ETAT_INTIAL] ):
+        return genere_html_intro()
 
+    elif( partie[PARTIE_ETAT] in [PARTIE_ETAT_EN_COURS,PARTIE_ETAT_GAGNE,PARTIE_ETAT_PERDU]):
+        return genere_html_partie( partie )
+
+    else:
+        print("Il y a un problème dans l'algorithme d'affichage de la partie")
 
 ####################### Tests et aides pour le développement #######################
 
@@ -266,16 +276,25 @@ def formatte_tab_jeu_console( tab_jeu ):         # aussi pour débugger
     return tab_txt
 
 
-def formatte_partie_console( partie ):
+def debug_partie_console( partie, action, params ):
     """
     Genere une représenation de toutes les données de la partie en format texte
     """
-    txt = ["---------------------------------------"]
+    donnees = ["---------------------------------------"]   
+    # action effectuée
+    donnees += [ f"action = '{action}' paramtres = {params}"]
+
+    # données de la partie en cours
     for cle,valeur in partie.items():
         if( cle != PARTIE_TAB ):
-            txt.append( f"{cle} = {valeur}")     # met à jour le tableau
+            donnees.append( f"{cle} = {valeur}")     # met à jour le tableau
 
+    # tableau de jeu
     if( partie[PARTIE_ETAT] != PARTIE_ETAT_INTIAL ):
-        txt = txt + formatte_tab_jeu_console( partie[PARTIE_TAB] )
+        donnees += formatte_tab_jeu_console( partie[PARTIE_TAB] )
 
-    return txt
+    # affiche l'ensemble sur la console
+    for ligne in donnees:
+        print( ligne )
+
+

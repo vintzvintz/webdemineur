@@ -236,7 +236,7 @@ def genere_html_partie( partie ):
     body += genere_html_tab_jeu( partie )
     if( etat_partie == PARTIE_ETAT_EN_COURS):
         body += f"<P><div class='bouton'><a href=/{ACTION_ABANDON}>Abandonner</a></div></P>"
-    body += f"<P><div class='bouton'><a href=/{ACTION_INTRO}>Recommencer</a></div></P>"
+    body += f"<P><div class='bouton'><a href=/{ACTION_RECOMMENCE}>Recommencer</a></div></P>"
 
     return genere_page_html_complete( titre = "WebDemineur", style = css, body = body, body_class=classe_fond)
 
