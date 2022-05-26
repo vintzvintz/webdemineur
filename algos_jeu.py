@@ -178,17 +178,7 @@ def traite_action(partie, action, params):
         drapeau( partie, params[COORD_X], params[COORD_Y] )
 
     else:
-        pass  
-        # erreur action inconnue
-
-
-    # if ( partie[PARTIE_ETAT] in [PARTIE_ETAT_PERDU, PARTIE_ETAT_GAGNE] ):
-    #     devoile( partie )
-    #     html = genere_html_partie_finie( partie )
-        
-    # elif ( partie[PARTIE_ETAT] == PARTIE_ETAT_EN_COURS ):
-    html = genere_html_partie( partie )
-
+        print( "Erreur action '{action} inconnue")
 
     # affichage dans la console (pour debug)
     donnees = [ f"action = {action} {params}"]
@@ -196,14 +186,8 @@ def traite_action(partie, action, params):
     for ligne in donnees:
         print( ligne )
 
-
-    # Pour tester
-    #    body = "<br>".join(donnees)
-    #    html = genere_page_html_complete( "Démineur", "<pre>"+body+"</pre>")
-
-
-    # genere la page HTML correspondant à la nouvelle partie
-
+    # genere la page HTML correspondant à la partie en cours
+    html = genere_html_partie( partie )
 
     return ( True, html )
 
