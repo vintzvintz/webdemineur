@@ -147,7 +147,6 @@ def run():
     # Code trouvé sur internet pour lancer un serveur HTTP
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer( ("", PORT_HTTP), DemineurRequestHandler) as httpd:
-        httpd.allow_reuse_address=True
         print( f"\nServeur ouvert sur http://127.0.0.1:{PORT_HTTP}\n")
 
         httpd.serve_forever()
