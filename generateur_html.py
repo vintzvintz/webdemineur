@@ -1,4 +1,3 @@
-
 import time
 from commun import *
 
@@ -25,6 +24,7 @@ def genere_page_html_complete( titre, style, body, body_class='encours' ):
     return html
 
 
+
 #################### Règles de formattage ############################
 
 def genere_css_grille( nb_x, nb_y, taille_case ):
@@ -39,9 +39,9 @@ def genere_css_grille( nb_x, nb_y, taille_case ):
     css= f"""
         body {{
             width: 90%;
-            max-width: 1000px;
             margin: 1em auto;
             font: .9em/1.2 Arial, Helvetica, sans-serif;
+            text-align: center;
         }}
 
         .gagne {{
@@ -58,10 +58,14 @@ def genere_css_grille( nb_x, nb_y, taille_case ):
         .tabjeu {{
             display: grid;
             gap: 1px;
-            grid-template-columns: repeat({nb_x}, {taille_case}px);
-            grid-template-rows: repeat({nb_y}, {taille_case}px);
+            grid-template-columns: repeat({nb_y}, {taille_case}px);
+            grid-template-rows: repeat({nb_x}, {taille_case}px);
         }}
 
+        .contienttabjeu {{
+            margin: auto;
+            width: {taille_case * nb_y}px;
+        }}
         .tabjeu div {{
             border-radius: 3px;
             padding: 5px;
@@ -77,12 +81,16 @@ def genere_css_grille( nb_x, nb_y, taille_case ):
         .flag {{
             background-color: rgb(136, 158, 168);
             background-image: url('{CHEMIN_RESSOURCES}/drapeau.png');
+            background-size: contain;
         }}
         .bombe {{
             background-color: rgb(64, 94, 108);
             background-image: url('{CHEMIN_RESSOURCES}/bombe.png');
+            background-size: contain;
         }}
-"""
+        
+    """
+
     return css
 
 
@@ -92,17 +100,76 @@ def genere_html_intro():
     """
 
     body = f"""
-    <p>Quel défi allez-vous relever aujourd'hui ?</p>
-    <ul>
-    <li><a href="{ACTION_NOUVELLE_PARTIE}?mode={PARTIE_MODE_FACILE}">Facile</a></li>
-    <li><a href="{ACTION_NOUVELLE_PARTIE}?mode={PARTIE_MODE_NORMAL}">Normal</a></li>
-    <li><a href="{ACTION_NOUVELLE_PARTIE}?mode={PARTIE_MODE_HARDCORE}">Hardcore</a></li>
-    </ul>
+    <h1>Quel défi allez-vous relever aujourd'hui ?</h1>
+
+    <p><div class="instructions">Pour poser un drapeau, appuyez sur d,<br>
+    Pour creuser, appuyez sur c</div></p>
+
+    <div class="mode">
+
+        <div class="modestyle">
+            <span class="modetexte"><a href="{ACTION_NOUVELLE_PARTIE}?mode={PARTIE_MODE_FACILE}">Facile</a></span>
+        </div>
+
+        <div class="modestyle">
+            <span class="modetexte"><a href="{ACTION_NOUVELLE_PARTIE}?mode={PARTIE_MODE_NORMAL}">Moyen</a></span>
+        </div>
+
+        <div class="modestyle">
+            <span class="modetexte"><a href="{ACTION_NOUVELLE_PARTIE}?mode={PARTIE_MODE_HARDCORE}">Hardcore</a></span>
+        </div>
+
+    </div>
+
     """
 
     # CSS de la page d'accueil à compléter
-    style = ""
-    return genere_page_html_complete( titre = "Démineur", style = style, body = body )
+    css = genere_css_intro()
+    return genere_page_html_complete( titre = "Démineur", style = css, body = body )
+
+
+def genere_css_intro():
+    """
+    Génère le css de la page d'accueil
+    """
+    css = f"""
+        body {{
+            background-color: #A8DDFA;
+            font-family: Arial;
+        }}
+        h1 {{
+            font-size: 500%;
+            font-weight: 700;
+            text-align: center;
+        }}
+        .instructions {{
+              text-align: center;
+              font-size: 200%;
+              font-style: italic;
+          }}
+          .mode {{
+              display: grid;
+              grid-template-columns: auto;
+          }}
+          .modestyle {{
+            text-align: center;
+            font-size: 200%;
+            height: 150px;
+            background: white;
+            opacity: 0.7;
+            margin: 50px 20%;
+            border-style: double;
+            padding: 10px;
+          }}
+          .modetexte {{
+              vertical-align: middle;
+              height: 150px;
+              line-height: 150px;
+          }}
+    """
+
+    return css
+    
 
 
 ##########################  Generateurs de html pour chaque type de case et pour le tableau entier ######################
@@ -117,6 +184,7 @@ def genere_lien_actions( x, y ):
 """
     return div
 
+
 def genere_cellule_masquee( x, y ):
     """
     Génère une case masquée dans le tableau
@@ -129,6 +197,7 @@ def genere_cellule_masquee( x, y ):
         </div>
 """
     return div
+
 
 def genere_cellule_drapeau( x,  y):
     """
@@ -143,6 +212,7 @@ def genere_cellule_drapeau( x,  y):
 """
     return div
 
+
 def genere_cellule_devoilee( nb_voisins ):
     """
     "Dévoile" la case dans le tableau
@@ -153,6 +223,7 @@ def genere_cellule_devoilee( nb_voisins ):
         </div>
 """
     return div
+
 
 def genere_cellule_bombe():
     """
@@ -198,9 +269,9 @@ def genere_html_tab_jeu( partie ):
 
     # on encadre la liste des cellules dans un élément <div> pour formatter la grille
     div_tableau = f"""
-    <div class="tabjeu">
+    <div class="contienttabjeu"><div class="tabjeu">
     {cellules}
-    </div>
+    </div></div>
     """
 
     return div_tableau
@@ -239,7 +310,6 @@ def genere_html_partie( partie ):
     body += f"<P><div class='bouton'><a href=/{ACTION_RECOMMENCE}>Recommencer</a></div></P>"
 
     return genere_page_html_complete( titre = "WebDemineur", style = css, body = body, body_class=classe_fond)
-
 
 
 def genere_page_erreur( message ):
