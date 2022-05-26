@@ -59,7 +59,7 @@ def nouvelle_partie( partie, params):
         tab_jeu = init_tableau_jeu( 20, 30, 150)
     else:
         mode = PARTIE_MODE_FACILE    # le mode de partie par défaut est "facile"
-        tab_jeu = init_tableau_jeu( 5, 5, 5)
+        tab_jeu = init_tableau_jeu(5, 5, 3)
 
     # met à jour les données de la partie 
     partie[PARTIE_TAB]=tab_jeu
@@ -81,9 +81,9 @@ def creuse(partie, x, y):
 
     # si la case est déja dévoilée on ne fait rien 
     if( est_devoile( tab_jeu[x][y] ) ):
-        return
+        pass
 
-    if( est_bombe(tab_jeu[x][y]) ):
+    elif( est_bombe(tab_jeu[x][y]) ):
         #PERDU
         tab_jeu[x][y] = BOMB_DEVOILE
         partie[PARTIE_ETAT] = PARTIE_ETAT_PERDU
