@@ -194,8 +194,10 @@ def traite_action(partie, action, params):
         if( action == ACTION_NOUVELLE_PARTIE ):
             nouvelle_partie(partie, params)
 
-        elif( action == ACTION_INTRO or not etat_partie == PARTIE_ETAT_EN_COURS):
-            return genere_html_intro()
+        elif( action == ACTION_INTRO ):
+            # on n'affiche l'intro que si la partie n'est pas en cours
+            if( not etat_partie == PARTIE_ETAT_EN_COURS ):
+                return genere_html_intro()
 
         elif( action == ACTION_CREUSE ):
             creuse( partie, params[COORD_X], params[COORD_Y] )
