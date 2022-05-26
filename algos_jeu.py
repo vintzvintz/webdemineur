@@ -5,10 +5,10 @@ from generateur_html import *
 
 ####################### Création d'une nouvelle partie #######################
 
-def init_partie_vide():
+def init_serveur():
     """
-    Crée le dictionaire "partie", qui contient toutes les données de partie les
-    plus récentes ( le mode, l'état... )
+    Crée le dictionaire "partie" au lancement du serveur
+    Il sera complété par nouvelle_partie() quand le joueur demande le lancement d'une nouvelle partie
     """
     partie = dict()
     partie[PARTIE_ETAT]=PARTIE_ETAT_INTIAL

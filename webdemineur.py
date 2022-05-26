@@ -11,13 +11,10 @@ EXTENSIONS_FICHIERS_STATIQUES = [ ".css",    # feuille de style
                                   ".png"]    # images
 
 
-# conversion en entiers de certains parametres des requetes
-# les autres sont traités comme de chaines de caractères
-PARAMETRES_NUMERIQUES = [COORD_X, COORD_Y]
-
 # Variable globale contenant les données de la partie en cours
-# sera rempli et modifié par des fonctions dans algos_jeu.py
-partie = init_partie_vide()
+# sera rempli et modifié par des fonctions dans algos_jeu.py à chaque évènement de la partie.
+partie = init_serveur()
+
 
 
 def decode_parametres(chaine):
@@ -50,7 +47,7 @@ def decode_parametres(chaine):
         valeur = paire[1]
 
         # conversion en entier des coordonnées
-        if (cle in PARAMETRES_NUMERIQUES):
+        if (cle in [COORD_X, COORD_Y]):
             valeur = int(valeur)
         
         # ajoute au dictionnaire
