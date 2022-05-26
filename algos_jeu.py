@@ -52,14 +52,14 @@ def nouvelle_partie( partie, params):
     mode = params[PARTIE_MODE]
 
     # initialise le tableau de jeu
-    if( mode == PARTIE_MODE_NORMAL):               # on peut modifier ces modes de jeu ou en rajouter un, la grille peut aussi être rectangulaire
+    # on peut modifier ces modes de jeu ou en rajouter un, la grille peut aussi être rectangulaire
+    if( mode == PARTIE_MODE_NORMAL):               
         tab_jeu = init_tableau_jeu( 10, 10, 25) 
     elif( mode == PARTIE_MODE_HARDCORE):
-        tab_jeu = init_tableau_jeu( 30, 40, 250)
+        tab_jeu = init_tableau_jeu( 20, 30, 150)
     else:
-        tab_jeu = init_tableau_jeu( 5, 5, 5)
         mode = PARTIE_MODE_FACILE    # le mode de partie par défaut est "facile"
-
+        tab_jeu = init_tableau_jeu( 5, 5, 5)
 
     # met à jour les données de la partie 
     partie[PARTIE_TAB]=tab_jeu
