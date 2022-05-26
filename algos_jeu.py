@@ -268,7 +268,7 @@ def formatte_partie_console( partie ):
     """
     Genere une représenation de toutes les données de la partie en format texte
     """
-    txt = []
+    txt = ["---------------------------------------"]
     for cle,valeur in partie.items():
         if( cle != PARTIE_TAB ):
             txt.append( f"{cle} = {valeur}")     # met à jour le tableau

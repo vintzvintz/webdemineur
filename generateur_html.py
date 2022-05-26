@@ -212,7 +212,7 @@ def genere_html_partie( partie ):
     """
     nb_x, nb_y = taille_tab_jeu( partie[PARTIE_TAB] )
 
-    temps = round(time.time() - partie[PARTIE_HEURE_DEBUT], 4)
+    temps = round(time.time() - partie[PARTIE_HEURE_DEBUT], 2)
     print( f"Durée écoulée = {temps} ")
 
     etat_html = ""
