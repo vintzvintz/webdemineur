@@ -27,16 +27,16 @@ ACTION_INTRO = "intro"
 ACTION_NOUVELLE_PARTIE = "start_game"
 ACTION_CREUSE = "creuse"
 ACTION_FLAG = "flag"
+ACTION_ABANDON = "abandon"
 
 LISTE_ACTIONS = [
     ACTION_INTRO,
     ACTION_NOUVELLE_PARTIE,
     ACTION_CREUSE,
-    ACTION_FLAG ]
-
+    ACTION_FLAG,
+    ACTION_ABANDON ]
 
 CHEMIN_RESSOURCES = "/fichiers"
-
 
 COORD_X = "x"
 COORD_Y = "y"
@@ -110,7 +110,7 @@ def taille_tab_jeu(tab_jeu):
     """
     taille_x = len(tab_jeu)
     taille_y = len(tab_jeu[0])
-    return ( taille_x, taille_y)
+    return ( taille_x, taille_y )
 
 
 def cases_voisines( tab_jeu, x, y ):
@@ -154,21 +154,3 @@ def compte_bombes_voisines( tab_jeu, x, y ):
 
     return nb_bombes_voisines
 
-
-def devoile( partie ):
-    """
-    Dévoile toutes les cases de la grille
-    """
-    tabj = partie[PARTIE_TAB]
-    x, y = taille_tab_jeu(tabj)
-
-    for ligne in range(len(tabj)):
-        for case in range(x):
-
-            code_case = tabj[ligne][case]
-
-            if est_bombe ( code_case ):
-                tabj[ligne][case] = BOMB_DEVOILE
-            else: 
-                # si la case ne contient pas de bombe elle est forcément vide
-                tabj[ligne][case] = VIDE_DEVOILE 

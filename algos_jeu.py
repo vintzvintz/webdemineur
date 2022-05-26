@@ -49,23 +49,20 @@ def nouvelle_partie( partie, params):
     initialise la grille, et met à jour le dictionaire "partie"
     """
     # détermine le type de partie à créer
-    try: 
-        mode = params[PARTIE_MODE]
-    except:
-        mode = PARTIE_MODE_FACILE    # le mode de partie par défaut est "facile"
+    mode = params[PARTIE_MODE]
 
     # initialise le tableau de jeu
-    if( mode == PARTIE_MODE_FACILE):               # on peut modifier ces modes de jeu ou en rajouter un, la grille peut aussi être rectangulaire
-        tab_jeu = init_tableau_jeu( 5, 5, 5)
-    elif( mode == PARTIE_MODE_NORMAL ):
-        tab_jeu = init_tableau_jeu( 10, 10, 25)
+    if( mode == PARTIE_MODE_NORMAL):               # on peut modifier ces modes de jeu ou en rajouter un, la grille peut aussi être rectangulaire
+        tab_jeu = init_tableau_jeu( 10, 10, 25) 
     elif( mode == PARTIE_MODE_HARDCORE):
         tab_jeu = init_tableau_jeu( 30, 40, 250)
     else:
-        return (False, f"Type de difficulté '{mode}' invalide")
-    partie[PARTIE_TAB]=tab_jeu
+        tab_jeu = init_tableau_jeu( 5, 5, 5)
+        mode = PARTIE_MODE_FACILE    # le mode de partie par défaut est "facile"
 
-    # met à jour les autres paramètres
+
+    # met à jour les données de la partie 
+    partie[PARTIE_TAB]=tab_jeu
     partie[PARTIE_MODE] = mode
     partie[PARTIE_ETAT] = PARTIE_ETAT_EN_COURS
     partie[PARTIE_HEURE_DEBUT] = time.time()
@@ -105,11 +102,11 @@ def creuse(partie, x, y):
 
 ####################### traitement de l'action "placer/retirer drapeau" #######################
 
-def test_victoire(tab_jeu):                 # A FAIRE
+def test_victoire(tab_jeu):
     """        
     Vérifie que les drapeaux posés sont sur les bombes en parcourant tout le tableau :
     Si il y a un drapeau sur une case vide ou si il y a une bombe sans drapeau, la 
-    partie n'est pas gagnée                                     
+    partie n'est pas gagnée
     """
 
     for ligne in tab_jeu:
@@ -150,6 +147,34 @@ def drapeau(partie, x, y ):
         partie[PARTIE_ETAT] = PARTIE_ETAT_GAGNE
 
 
+
+####################### traitement de l'action "abandonner" ou partie terminée #######################
+
+def devoile( partie ):
+    """
+    Dévoile toutes les cases de la grille
+    """
+    tabj = partie[PARTIE_TAB]
+    taille_x, taille_y = taille_tab_jeu(tabj)
+
+    for ligne in range(taille_x ):
+        for case in range(taille_y):
+
+            code_case = tabj[ligne][case]
+
+            if est_bombe ( code_case ):
+                tabj[ligne][case] = BOMB_DEVOILE
+            else: 
+                # si la case ne contient pas de bombe elle est forcément vide
+                tabj[ligne][case] = VIDE_DEVOILE 
+
+
+def abandonne(partie):
+    devoile( partie )
+    partie[PARTIE_ETAT] = PARTIE_ETAT_PERDU
+
+
+
 ####################### point d'entrée pour traiter les requetes entrantes #######################
 
 def traite_action(partie, action, params):
@@ -162,23 +187,34 @@ def traite_action(partie, action, params):
     """
     # compteur de requetes
     partie['nb_requetes'] += 1
+    etat_partie = partie[PARTIE_ETAT]
 
-    # cas particulier pour la page d'accueil
-    if( action == ACTION_INTRO ):
-        return( True, genere_html_intro())
+    try:
 
-    # modifie les données de la partie selon l'action du joueur
-    elif( action == ACTION_NOUVELLE_PARTIE ):
-        nouvelle_partie(partie, params)
+        if( action == ACTION_NOUVELLE_PARTIE ):
+            nouvelle_partie(partie, params)
 
-    elif( action == ACTION_CREUSE ):
-        creuse( partie, params[COORD_X], params[COORD_Y] )
+        elif( action == ACTION_INTRO or not etat_partie == PARTIE_ETAT_EN_COURS):
+            return genere_html_intro()
 
-    elif( action == ACTION_FLAG ):
-        drapeau( partie, params[COORD_X], params[COORD_Y] )
+        elif( action == ACTION_CREUSE ):
+            creuse( partie, params[COORD_X], params[COORD_Y] )
 
-    else:
-        print( "Erreur action '{action} inconnue")
+        elif( action == ACTION_FLAG ):
+            drapeau( partie, params[COORD_X], params[COORD_Y] )
+
+        elif( action == ACTION_ABANDON ):
+            abandonne(partie)
+        
+        else:
+            print("Il y a un problème dans l'algorithme de traitment des actions de jeu")
+
+    except Exception as e:
+        # on ignore silencieusement les erreurs lors du traitement de l'action. Exemples
+        #  - parametres de l'action absents ou invalides
+        #  - action de jeu sur une partie non initialisée
+        print("Erreur ignoree : ")
+        print(e)
 
     # affichage dans la console (pour debug)
     donnees = [ f"action = {action} {params}"]
@@ -187,9 +223,7 @@ def traite_action(partie, action, params):
         print( ligne )
 
     # genere la page HTML correspondant à la partie en cours
-    html = genere_html_partie( partie )
-
-    return ( True, html )
+    return genere_html_partie( partie )
 
 
 ####################### Tests et aides pour le développement #######################
@@ -238,23 +272,8 @@ def formatte_partie_console( partie ):
     for cle,valeur in partie.items():
         if( cle != PARTIE_TAB ):
             txt.append( f"{cle} = {valeur}")     # met à jour le tableau
-    txt = txt + formatte_tab_jeu_console( partie[PARTIE_TAB] )
+
+    if( partie[PARTIE_ETAT] != PARTIE_ETAT_INTIAL ):
+        txt = txt + formatte_tab_jeu_console( partie[PARTIE_TAB] )
+
     return txt
-
-
-def teste_algorithmes():
-    """
-    Test des algorithmes de jeu sans l'interface web
-    """
-    partie = init_partie_vide()
-    traite_action( partie, ACTION_NOUVELLE_PARTIE, {PARTIE_MODE:PARTIE_MODE_FACILE})
-    traite_action( partie, ACTION_CREUSE, {COORD_X:5, COORD_Y:5} )
-    
-
-# astuce pour executer les tests quand le module est exécuté mais pas importé
-if( __name__ == '__main__'):
-    teste_algorithmes()
-
-
-
-# devoile

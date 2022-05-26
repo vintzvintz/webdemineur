@@ -1,4 +1,4 @@
-from http.client import EXPECTATION_FAILED
+
 import time
 from commun import *
 
@@ -165,6 +165,7 @@ def genere_cellule_bombe():
 """
     return div
 
+
 def genere_html_tab_jeu( partie ):
     """
     Genere une représentation du tableau de jeu pour insertion dans une page html
@@ -205,41 +206,42 @@ def genere_html_tab_jeu( partie ):
     return div_tableau
 
 
-
 def genere_html_partie( partie ):
     """
     Génère le html pour une partie en cours
     """
     nb_x, nb_y = taille_tab_jeu( partie[PARTIE_TAB] )
 
-    # A completer
-    #  * titre = {dépend de l'état de la partie }                        à finir
-    #  * générer une page différente quand la partie est terminée        à faire
-    #           avec des messages perdu/gagné       
-    #           sans les liens dig/flag
-
     temps = round(time.time() - partie[PARTIE_HEURE_DEBUT], 4)
     print( f"Durée écoulée = {temps} ")
 
     etat_html = ""
-    if( partie[PARTIE_ETAT] == PARTIE_ETAT_EN_COURS):
+    etat_partie = partie[PARTIE_ETAT]
+    if( etat_partie == PARTIE_ETAT_EN_COURS ):
         etat_html="<p> Partie en cours</p>"
         classe_fond="encours"
-    if( partie[PARTIE_ETAT]==PARTIE_ETAT_GAGNE):
+    elif( etat_partie == PARTIE_ETAT_GAGNE ):
         etat_html="<p> GAGNE !!!1!1!!</p>"
         classe_fond="gagne"
-    if( partie[PARTIE_ETAT]==PARTIE_ETAT_PERDU):
+    elif( etat_partie == PARTIE_ETAT_PERDU ):
         etat_html="<p> PERDU :(</p>"
         classe_fond="perdu"
     else:
-        print('Erreur')
+        print( f"Erreur - etat_partie {etat_partie} invalide")
 
     css = genere_css_grille( nb_x, nb_y, TAILLE_CASE)
+
     body = f"<p>{etat_html}</p>"
-    body += f"<p>Durée écoulée = {temps} </p>"
+    body += f"<p>Durée écoulée = {temps} secondes </p>"
     body += genere_html_tab_jeu( partie )
-    body += f"<P><div class='bouton'><a href=/{ACTION_INTRO}>Recommencer une partie</a></div></P>"
+    if( etat_partie == PARTIE_ETAT_EN_COURS):
+        body += f"<P><div class='bouton'><a href=/{ACTION_ABANDON}>Abandonner</a></div></P>"
+    body += f"<P><div class='bouton'><a href=/{ACTION_INTRO}>Recommencer</a></div></P>"
 
-#    body = f"<div class='{classe_fond}'>" + body + "</div>"
+    return genere_page_html_complete( titre = "WebDemineur", style = css, body = body, body_class=classe_fond)
 
-    return genere_page_html_complete( titre = "Partie en cours", style = css, body = body, body_class=classe_fond)
+
+
+def genere_page_erreur( message ):
+    body=f"<p>Erreur</p><p>{message}</p>"
+    return genere_page_html_complete( titre = "Fail :(", style ="", body = body )

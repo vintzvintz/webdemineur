@@ -64,28 +64,27 @@ def analyse_requete(path):
     détermine si la requete concerne un fichier ou une action de jeu
     renvoie une paire
     ('statique', None) pour les ressources statiques ( les images )
-    ('intro', None) pour la page d'accueil
-    (nom_action, dict(parametres) ) pour les actions de jeu
+    (nom_action, dict(parametres) ) pour les actions de jeu et la page d'accueil
     ('erreur', None ) si la requete est invalide
     """
-
-    # cas particulier pour la page d'accueil
-    if( path == "/" or path == ""):
-        return (ACTION_INTRO, None)
-
-    # Est-ce une action de jeu ?
-    for action in LISTE_ACTIONS:
-        if( path.startswith( '/' + action ) ):
-            params_chaine = path[ len(action) + 2 : ]     # recupere la partie "paramètres" de la requete
-            params = decode_parametres( params_chaine )
-            return ( action, params )
 
     # Est-ce une ressource statique ?
     extension = path[-4:]    # pour vérifier si le fichier est .png, .css...
     if( extension in EXTENSIONS_FICHIERS_STATIQUES ):
         return ( 'statique', path )
 
-    # Est-ce autre chose qu'une action ou une ressource ?
+    # cas particulier pour la page d'accueil
+    if( path == "/" or path == ""):
+        return (ACTION_INTRO, None)
+
+    # Est-ce une action de jeu connue ?
+    for action in LISTE_ACTIONS:
+        if( path.startswith( '/' + action ) ):
+            params_chaine = path[ len(action) + 2 : ]     # recupere la partie "paramètres" de la requete
+            params = decode_parametres( params_chaine )
+            return ( action, params )
+
+    # Les autres requetes sont invalides
     return ( 'erreur', None )
 
 
@@ -103,42 +102,28 @@ class DemineurRequestHandler( SimpleHTTPRequestHandler ):
         Cette version est modifiée pour gerer également les actions de jeu
         """
 
-        print( self.requestline )
-
+        # analyse la requete pour savoir si c'est une action ou une ressource statique
         action, params = analyse_requete(self.path)
 
         # pour les ressources statiques, on appelle la fonction do_GET d'origine de SimpleHTTPRequestHandler qui s'occupe de tout
         if( action == 'statique' ):
             return super().do_GET()
 
-        # pour les actions de jeu, on appelle traite_action() et on transfère le résultat au client 
-        # traite_action doit renvoyer une page html complete et valide
-
-        # Réponse par défaut = erreur
-        code_reponse = 500
-        contenu_reponse = "Erreur interne"
-
-        if( action in LISTE_ACTIONS ):
-            # execute l'action de jeu sur la partie en cours, avec les paramètres indiqués
-            succes, contenu = traite_action( partie, action, params )
-
-            # change le code de réponse par défaut en cas de succès
-            if( succes ):
-                code_reponse = 200
-
-            if( contenu ):
-                # contenu = message d'erreur éventuel ou page HTML en cas de succès
-                contenu_reponse = contenu
-
+        # en dehors des ressources statiques, on doit traiter la requete nous-memes et renvoyer une réponse au client
+        if( action == 'erreur' ):
+            # pour les requetes non reconnues, on renvoie une erreur
+            code_reponse = 500
+            html = genere_page_erreur( f"<p>Requete invalide : <pre> {self.requestline}<pre></p>" )
         else:
-            # Erreur 404 si l'action est inconnue
-            code_reponse = 404
-            contenu_reponse = "Ressource introuvable"
+            # pour les actions de jeu, on appelle traite_action() avec les données de la partie en cours
+            code_reponse = 200
+            html = traite_action( partie, action, params )
+
 
         self.send_response( code_reponse )
         self.send_header('content-type','text/html; charset=utf-8')
         self.end_headers()
-        self.wfile.write(contenu_reponse.encode())
+        self.wfile.write(html.encode())
 
 
 ####################### Point d'entrée principal de l'application #######################
