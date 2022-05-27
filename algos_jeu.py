@@ -137,7 +137,6 @@ def drapeau(partie, x, y ):
     elif( case == BOMB_FLAG ):            # retire un drapeau
         tab_jeu[x][y] = BOMB_MASQUEE
 
-
     else:
         # case == VIDE_DEVOILE or case == BOMB_DEVOILE
         # on ne fait rien si la case est déja dévoilée
@@ -150,7 +149,6 @@ def drapeau(partie, x, y ):
 
 ####################### traitement de l'action "abandonner" ou partie terminée #######################
 
-
 def abandonne(partie):
     devoile( partie )
     partie[PARTIE_ETAT] = PARTIE_ETAT_PERDU
@@ -162,7 +160,6 @@ def recommence(partie):
 
 
 ####################### point d'entrée pour traiter les requetes entrantes #######################
-
 
 def traite_action(partie, action, params):
     """
@@ -206,8 +203,12 @@ def traite_action(partie, action, params):
         # on ignore silencieusement les erreurs lors du traitement de l'action. Exemples
         #  - parametres de l'action absents ou invalides
         #  - action de jeu sur une partie non initialisée
-        print("Erreur ignoree : ")
+        print("Erreur ignoree :")
         print(e)
+
+
+    if( partie[PARTIE_ETAT] == PARTIE_ETAT_GAGNE or partie[PARTIE_ETAT] == PARTIE_ETAT_PERDU):
+        devoile(partie)
 
     # affichage dans la console 
     debug_partie_console( partie, action, params )
@@ -236,7 +237,7 @@ SYMBOLES_CONSOLE = {
 }
 
 
-def formatte_tab_jeu_console( tab_jeu ):         # aussi pour débugger
+def formatte_tab_jeu_console( tab_jeu ):
     """
     Genere une représentation du tableau de jeu en format texte
     """
@@ -254,7 +255,7 @@ def formatte_tab_jeu_console( tab_jeu ):         # aussi pour débugger
                 txt = SYMBOLES_CONSOLE[case]
             ligne.append( str(txt) )
 
-        # transforme la liste en chaine de caracteres
+        # pour chaque ligne, transforme la liste de cases en chaine de caracteres
         ligne_txt = ' '.join(ligne)
         tab_txt.append(ligne_txt)
     
