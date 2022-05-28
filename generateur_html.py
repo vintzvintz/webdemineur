@@ -4,22 +4,22 @@ from commun import *
 
 #################### Structure générale commune d'un page HTML############################
 
-def genere_page_html_complete( titre, style, body, body_class='encours' ):
+def genere_page_html_complete(titre, style, body, body_class='encours'):
     """
     Genere une page html complete avec le contenu et les règles CSS fournies
     """
     html = f"""<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>{titre}</title>
-    <style>
-    {style}
-    </style>
-  </head>
-  <body class='{body_class}'>
-    {body}
-  </body>
-</html>
+    <head>
+        <meta charset="utf-8" />
+        <title>{titre}</title>
+        <style>
+            {style}
+        </style>
+    </head>
+    <body class='{body_class}'>
+        {body}
+    </body>
+    </html>
 """
     return html
 
@@ -27,7 +27,7 @@ def genere_page_html_complete( titre, style, body, body_class='encours' ):
 
 #################### Règles de formattage ############################
 
-def genere_css_grille( nb_x, nb_y, taille_case ):
+def genere_css_grille(nb_x, nb_y, taille_case):
     """
     Les règles de formattage dépendent de la taille de la grille de jeu
     """
@@ -36,7 +36,7 @@ def genere_css_grille( nb_x, nb_y, taille_case ):
     # Inspiré du tutoriel mozilla
     # https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids -->
 
-    css= f"""
+    css = f"""
         body {{
             width: 90%;
             margin: 1em auto;
@@ -54,14 +54,12 @@ def genere_css_grille( nb_x, nb_y, taille_case ):
             background-color: #A8DDFA;
         }}
 
-
         .tabjeu {{
             display: grid;
             gap: 1px;
             grid-template-columns: repeat({nb_y}, {taille_case}px);
             grid-template-rows: repeat({nb_x}, {taille_case}px);
         }}
-
         .contienttabjeu {{
             margin: auto;
             width: {taille_case * nb_y}px;
@@ -74,7 +72,6 @@ def genere_css_grille( nb_x, nb_y, taille_case ):
         .masque {{
             background-color: rgb(184, 220, 237);
         }}
-
         .devoile {{
             background-color: rgb(221, 233, 239);
         }}
@@ -88,7 +85,6 @@ def genere_css_grille( nb_x, nb_y, taille_case ):
             background-image: url('{CHEMIN_RESSOURCES}/bombe.png');
             background-size: contain;
         }}
-        
     """
 
     return css
@@ -123,9 +119,8 @@ def genere_html_intro():
 
     """
 
-    # CSS de la page d'accueil à compléter
     css = genere_css_intro()
-    return genere_page_html_complete( titre = "Démineur", style = css, body = body )
+    return genere_page_html_complete(titre="Démineur", style=css, body=body)
 
 
 def genere_css_intro():
@@ -172,24 +167,24 @@ def genere_css_intro():
     
 
 
-##########################  Generateurs de html pour chaque type de case et pour le tableau entier ######################
+############## Generateurs de html pour chaque type de case et pour le tableau entier ##############
 
-def genere_lien_actions( x, y ):
+def genere_lien_actions(ligne, colonne):
     """
     Génère deux éléments cliquables pour poser les drapeaux et pour creuser 
     """
     div = f"""
-            <a href="/{ACTION_FLAG}?x={x}&y={y}">D</a>
-            <a href="/{ACTION_CREUSE}?x={x}&y={y}">C</a> 
+            <a href="/{ACTION_FLAG}?x={ligne}&y={colonne}">D</a>
+            <a href="/{ACTION_CREUSE}?x={ligne}&y={colonne}">C</a> 
 """
     return div
 
 
-def genere_cellule_masquee( x, y ):
+def genere_cellule_masquee(ligne, colonne):
     """
     Génère une case masquée dans le tableau
     """
-    actions = genere_lien_actions( x, y )
+    actions = genere_lien_actions(ligne, colonne)
     div = f"""
         <div class="masque">
             <!-- masqué sans drapeau-->
@@ -199,11 +194,11 @@ def genere_cellule_masquee( x, y ):
     return div
 
 
-def genere_cellule_drapeau( x,  y):
+def genere_cellule_drapeau(ligne, colonne):
     """
     "Pose" un drapeau sur la case
     """
-    actions = genere_lien_actions( x, y )
+    actions = genere_lien_actions(ligne, colonne)
     div = f"""
         <div class="flag">
             <!-- drapeau -->
@@ -213,7 +208,7 @@ def genere_cellule_drapeau( x,  y):
     return div
 
 
-def genere_cellule_devoilee( nb_voisins ):
+def genere_cellule_devoilee(nb_voisins):
     """
     "Dévoile" la case dans le tableau
     """
@@ -227,7 +222,7 @@ def genere_cellule_devoilee( nb_voisins ):
 
 def genere_cellule_bombe():
     """
-    
+    Génère une case de démineur contenant une bombe
     """
     div = f"""
         <div class="bombe">
@@ -237,7 +232,7 @@ def genere_cellule_bombe():
     return div
 
 
-def genere_html_tab_jeu( partie ):
+def genere_html_tab_jeu(partie):
     """
     Genere une représentation du tableau de jeu pour insertion dans une page html
     """
@@ -247,21 +242,21 @@ def genere_html_tab_jeu( partie ):
     # on construit une liste d'éléments <div> correspondant à la liste des cases
     cellules = ""
 
-    for x in range(taille_x):
-        for y in range(taille_y):
-            case = tab_jeu[x][y]
+    for ligne in range(taille_x):
+        for colonne in range(taille_y):
+            case = tab_jeu[ligne][colonne]
 
-            if( case == VIDE_MASQUEE or case == BOMB_MASQUEE ):
-                cellules += genere_cellule_masquee( x,y )
+            if(case == VIDE_MASQUEE or case == BOMB_MASQUEE):
+                cellules += genere_cellule_masquee(ligne, colonne)
 
-            elif( case == VIDE_FLAG or case == BOMB_FLAG ):
-                cellules += genere_cellule_drapeau( x,y )
+            elif(case == VIDE_FLAG or case == BOMB_FLAG):
+                cellules += genere_cellule_drapeau(ligne, colonne)
 
-            elif( case == VIDE_DEVOILE ):
-                nb = compte_bombes_voisines( tab_jeu,x,y )
-                cellules += genere_cellule_devoilee( nb )
+            elif(case == VIDE_DEVOILE):
+                nombre = compte_bombes_voisines(tab_jeu, ligne, colonne)
+                cellules += genere_cellule_devoilee(nombre)
 
-            elif( case == BOMB_DEVOILE ):
+            elif(case == BOMB_DEVOILE):
                 cellules += genere_cellule_bombe()
 
             else:
@@ -277,41 +272,50 @@ def genere_html_tab_jeu( partie ):
     return div_tableau
 
 
-def genere_html_partie( partie ):
+def genere_html_partie(partie):
     """
     Génère le html pour une partie en cours
     """
-    nb_x, nb_y = taille_tab_jeu( partie[PARTIE_TAB] )
+    nb_x, nb_y = taille_tab_jeu(partie[PARTIE_TAB])
 
     temps = round(time.time() - partie[PARTIE_HEURE_DEBUT], 2)
-    print( f"Durée écoulée = {temps} ")
+    print(f"Durée écoulée = {temps} ")
 
     etat_html = ""
     etat_partie = partie[PARTIE_ETAT]
-    if( etat_partie == PARTIE_ETAT_EN_COURS ):
-        etat_html="<p> Partie en cours</p>"
-        classe_fond="encours"
-    elif( etat_partie == PARTIE_ETAT_GAGNE ):
-        etat_html="<p> GAGNE !!!1!1!!</p>"
-        classe_fond="gagne"
-    elif( etat_partie == PARTIE_ETAT_PERDU ):
-        etat_html="<p> PERDU :(</p>"
-        classe_fond="perdu"
-    else:
-        print( f"Erreur - etat_partie {etat_partie} invalide")
 
-    css = genere_css_grille( nb_x, nb_y, TAILLE_CASE)
+    if(etat_partie == PARTIE_ETAT_EN_COURS):
+        etat_html = "<p> Partie en cours</p>"
+        classe_fond = "encours"
+
+    elif(etat_partie == PARTIE_ETAT_GAGNE):
+        etat_html = "<p> GAGNE !!!1!1!!</p>"
+        classe_fond = "gagne"
+
+    elif(etat_partie == PARTIE_ETAT_PERDU):
+        etat_html = "<p> PERDU :(</p>"
+        classe_fond = "perdu"
+
+    else:
+        print(f"Erreur - etat_partie {etat_partie} invalide")
+
+    css = genere_css_grille(nb_x, nb_y, TAILLE_CASE)
 
     body = f"<p>{etat_html}</p>"
     body += f"<p>Durée écoulée = {temps} secondes </p>"
-    body += genere_html_tab_jeu( partie )
-    if( etat_partie == PARTIE_ETAT_EN_COURS):
+    body += genere_html_tab_jeu(partie)
+
+    if(etat_partie == PARTIE_ETAT_EN_COURS):
         body += f"<P><div class='bouton'><a href=/{ACTION_ABANDON}>Abandonner</a></div></P>"
+
     body += f"<P><div class='bouton'><a href=/{ACTION_RECOMMENCE}>Recommencer</a></div></P>"
 
-    return genere_page_html_complete( titre = "WebDemineur", style = css, body = body, body_class=classe_fond)
+    return genere_page_html_complete(titre="WebDemineur", style=css, body=body, body_class=classe_fond)
 
 
-def genere_page_erreur( message ):
-    body=f"<p>Erreur</p><p>{message}</p>"
-    return genere_page_html_complete( titre = "Fail :(", style ="", body = body )
+def genere_page_erreur(message):
+    """
+    Génère une page d'erreur avec le message correspondant à l'erreur
+    """
+    body = f"<p>Erreur</p><p>{message}</p>"
+    return genere_page_html_complete(titre="Fail :(", style="", body=body)

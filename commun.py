@@ -36,7 +36,7 @@ LISTE_ACTIONS = [
     ACTION_CREUSE,
     ACTION_FLAG,
     ACTION_ABANDON,
-    ACTION_RECOMMENCE ]
+    ACTION_RECOMMENCE]
 
 CHEMIN_RESSOURCES = "/fichiers"
 
@@ -54,10 +54,10 @@ COORD_Y = "y"
 # les valeurs n'ont pas d'importance tant qu'elles sont différentes
 
 VIDE_MASQUEE = 'vm'
-VIDE_FLAG    = 'vf'
+VIDE_FLAG = 'vf'
 VIDE_DEVOILE = 'vd'
 BOMB_MASQUEE = 'bm'
-BOMB_FLAG    = 'bf'
+BOMB_FLAG = 'bf'
 BOMB_DEVOILE = 'bd'
 
 
@@ -70,39 +70,39 @@ TAILLE_CASE = 60
 
 # tests
 
-def est_vide( code_case ):
+def est_vide(code_case):
     """
     Verifie si la case est vide
     """ 
-    return code_case in [ VIDE_MASQUEE, VIDE_FLAG, VIDE_DEVOILE ]
+    return code_case in [VIDE_MASQUEE, VIDE_FLAG, VIDE_DEVOILE]
 
 
-def est_bombe( code_case ):
+def est_bombe(code_case):
     """
     Verifie si la case contient une bombe
     """ 
-    return code_case in [ BOMB_MASQUEE, BOMB_FLAG, BOMB_DEVOILE ]
+    return code_case in [BOMB_MASQUEE, BOMB_FLAG, BOMB_DEVOILE]
 
 
-def est_drapeau( code_case ):
+def est_drapeau(code_case):
     """
     Verifie si la case a un drapeau
     """ 
-    return code_case in [ VIDE_FLAG, BOMB_FLAG ]
+    return code_case in [VIDE_FLAG, BOMB_FLAG]
 
 
-def est_devoile( code_case ):
+def est_devoile(code_case):
     """
     Verifie si la case est dévoilée
     """ 
-    return code_case in [ VIDE_DEVOILE, BOMB_DEVOILE ]
+    return code_case in [VIDE_DEVOILE, BOMB_DEVOILE]
 
 
-def est_masquee( code_case ):
+def est_masquee(code_case):
     """
     Vérifie si la case est masquée
     """
-    return code_case in [ VIDE_MASQUEE, BOMB_MASQUEE ]
+    return code_case in [VIDE_MASQUEE, BOMB_MASQUEE]
 
 
 # evite de passer les dimensions du jeu en paramètres à toutes les fonctions
@@ -112,64 +112,64 @@ def taille_tab_jeu(tab_jeu):
     """
     taille_x = len(tab_jeu)
     taille_y = len(tab_jeu[0])
-    return ( taille_x, taille_y )
+    return (taille_x, taille_y)
 
 
-def cases_voisines( tab_jeu, x, y ):
+def cases_voisines(tab_jeu, ligne, colonne):
     """
     Renvoie la liste des coordonnées des cases voisines
     """
-    taille_x, taille_y = taille_tab_jeu( tab_jeu )
-    decalage_voisins = [(-1,0),     #nord
-                        (0,1),      #est    
-                        (1,0),      #sud    
-                        (0,-1),     #ouest    
-                        (-1,1),     #nord-est    
-                        (1,1),      #sud-est    
-                        (1,-1),     #sud-ouest
-                        (-1,-1),    #nord-ouest
+    taille_x, taille_y = taille_tab_jeu(tab_jeu)
+    decalage_voisins = [(-1, 0),     #nord
+                        (0, 1),      #est    
+                        (1, 0),      #sud    
+                        (0, -1),     #ouest    
+                        (-1, 1),     #nord-est    
+                        (1, 1),      #sud-est    
+                        (1, -1),     #sud-ouest
+                        (-1, -1),    #nord-ouest
     ]
 
     voisins = []
 
     for decalage in decalage_voisins:
         #calcule les coordonnées du voisin
-        x_voisin = x + decalage[0]
-        y_voisin = y + decalage[1]
+        x_voisin = ligne + decalage[0]
+        y_voisin = colonne + decalage[1]
 
         # ignore les voisins inexistants (situés hors du tableau)
-        if( x_voisin >= 0 and x_voisin < taille_x and y_voisin >= 0 and y_voisin < taille_y ):
-            voisins.append( ( x_voisin, y_voisin ) )
+        if(0 <= x_voisin < taille_x and 0 <= y_voisin < taille_y):
+            voisins.append((x_voisin, y_voisin))
     return voisins
 
 
-def compte_bombes_voisines( tab_jeu, x, y ):
+def compte_bombes_voisines(tab_jeu, ligne, colonne):
     """
-    Renvoie le nombre de bombes qui entourent une case de coordonnées (x,y)
+    Renvoie le nombre de bombes qui entourent une case de coordonnées (x, y)
     """
     nb_bombes_voisines = 0
-    voisins = cases_voisines( tab_jeu, x, y )
-    for ( x_voisin, y_voisin ) in voisins:
+    voisins = cases_voisines(tab_jeu, ligne, colonne)
+    for (x_voisin, y_voisin) in voisins:
         voisin = tab_jeu[x_voisin][y_voisin]
-        if( est_bombe(voisin) ) :
-            nb_bombes_voisines +=1
+        if(est_bombe(voisin)):
+            nb_bombes_voisines += 1
 
     return nb_bombes_voisines
 
 
-def devoile( partie ):
+def devoile(partie):
     """
     Dévoile toutes les cases de la grille
     """
     tabj = partie[PARTIE_TAB]
     taille_x, taille_y = taille_tab_jeu(tabj)
 
-    for ligne in range(taille_x ):
+    for ligne in range(taille_x):
         for case in range(taille_y):
 
             code_case = tabj[ligne][case]
 
-            if est_bombe ( code_case ):
+            if est_bombe(code_case):
                 tabj[ligne][case] = BOMB_DEVOILE
             else: 
                 # si la case ne contient pas de bombe elle est forcément vide
