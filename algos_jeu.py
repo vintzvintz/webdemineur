@@ -1,4 +1,5 @@
-import random, time
+import random
+import time
 from commun import *
 from generateur_html import *
 
@@ -8,7 +9,8 @@ from generateur_html import *
 def init_serveur():
     """
     Crée le dictionaire "partie" au lancement du serveur
-    Il sera complété par nouvelle_partie() quand le joueur demande le lancement d'une nouvelle partie
+    Il sera complété par nouvelle_partie() quand le joueur demande le lancement d'une nouvelle 
+    partie
     """
     partie = dict()
     partie[PARTIE_ETAT] = PARTIE_ETAT_INTIAL
@@ -24,26 +26,26 @@ def place_bombe_aleatoire(tab_jeu):
 
     # recommence tant que l'emplacement choisi n'est pas vide
     while (True):
-        x = random.randint(0, taille_x-1)
-        y = random.randint(0, taille_y-1)
-        contenu_case = tab_jeu[x][y]
+        ligne = random.randint(0, taille_x-1)
+        colonne = random.randint(0, taille_y-1)
+        contenu_case = tab_jeu[ligne][colonne]
         if(est_vide(contenu_case)):
-            tab_jeu[x][y] = BOMB_MASQUEE
+            tab_jeu[ligne][colonne] = BOMB_MASQUEE
             break
     return tab_jeu
 
 
-def init_tableau_jeu( taille_x, taille_y, nb_bombes ):
+def init_tableau_jeu(taille_x, taille_y, nb_bombes):
     """
     Intialise le tableau de jeu en début de partie
     """
-    tab_jeu = [ [VIDE_MASQUEE]*taille_x for i in range(taille_y) ]
-    for i in range(nb_bombes):
+    tab_jeu = [[VIDE_MASQUEE] * taille_x for case in range(taille_y)]
+    for case in range(nb_bombes):
         tab_jeu = place_bombe_aleatoire(tab_jeu)
     return tab_jeu
 
 
-def nouvelle_partie( partie, params):
+def nouvelle_partie(partie, params):
     """
     Crée une nouvelle partie avec un mode de difficulté,
     initialise la grille, et met à jour le dictionaire "partie"
@@ -53,16 +55,16 @@ def nouvelle_partie( partie, params):
 
     # initialise le tableau de jeu
     # on peut modifier ces modes de jeu ou en rajouter un, la grille peut aussi être rectangulaire
-    if( mode == PARTIE_MODE_NORMAL):               
-        tab_jeu = init_tableau_jeu( 10, 10, 25) 
-    elif( mode == PARTIE_MODE_HARDCORE):
-        tab_jeu = init_tableau_jeu( 20, 30, 150)
+    if(mode == PARTIE_MODE_NORMAL):               
+        tab_jeu = init_tableau_jeu(10, 10, 25) 
+    elif(mode == PARTIE_MODE_HARDCORE):
+        tab_jeu = init_tableau_jeu(20, 30, 150)
     else:
         mode = PARTIE_MODE_FACILE    # le mode de partie par défaut est "facile"
         tab_jeu = init_tableau_jeu(5, 5, 3)
 
     # met à jour les données de la partie 
-    partie[PARTIE_TAB]=tab_jeu
+    partie[PARTIE_TAB] = tab_jeu
     partie[PARTIE_MODE] = mode
     partie[PARTIE_ETAT] = PARTIE_ETAT_EN_COURS
     partie[PARTIE_HEURE_DEBUT] = time.time()
@@ -70,7 +72,7 @@ def nouvelle_partie( partie, params):
 
 ####################### traitement de l'action "creuser" #######################
 
-def creuse(partie, x, y):
+def creuse(partie, ligne, colonne):
     """
     Dévoile une case, vérifie que la partie n'est pas perdue,
     et si la case dévoilée est vide, propage les cases dévoilées
@@ -80,23 +82,23 @@ def creuse(partie, x, y):
     tab_jeu = partie[PARTIE_TAB]
 
     # si la case est déja dévoilée on ne fait rien 
-    if( est_devoile( tab_jeu[x][y] ) ):
+    if(est_devoile(tab_jeu[ligne][colonne])):
         pass
 
-    elif( est_bombe(tab_jeu[x][y]) ):
+    elif(est_bombe(tab_jeu[ligne][colonne])):
         #PERDU
-        tab_jeu[x][y] = BOMB_DEVOILE
+        tab_jeu[ligne][colonne] = BOMB_DEVOILE
         partie[PARTIE_ETAT] = PARTIE_ETAT_PERDU
 
     else:
         # pas perdu car pas de bombe
-        tab_jeu[x][y] = VIDE_DEVOILE
+        tab_jeu[ligne][colonne] = VIDE_DEVOILE
 
         # creuse les cases voisines non dévoilées s'il n'y a aucune bombe autour
-        if( compte_bombes_voisines( tab_jeu, x, y ) == 0 ):
-            for ( x_voisin, y_voisin ) in cases_voisines( tab_jeu, x, y):
+        if(compte_bombes_voisines(tab_jeu, ligne, colonne) == 0):
+            for (x_voisin, y_voisin) in cases_voisines(tab_jeu, ligne, colonne):
                 case_voisine = tab_jeu[x_voisin][y_voisin]
-                if( not est_devoile(case_voisine) ):
+                if(not est_devoile(case_voisine)):
                     creuse(partie, x_voisin, y_voisin)
 
 
@@ -110,51 +112,58 @@ def test_victoire(tab_jeu):
     """
 
     for ligne in tab_jeu:
-        for case in ligne :
-            if ( case in [BOMB_MASQUEE, VIDE_FLAG] ):
+        for case in ligne:
+            if (case in [BOMB_MASQUEE, VIDE_FLAG]):
                 return False
 
     return True
 
 
 
-def drapeau(partie, x, y ):
+def drapeau(partie, ligne, colonne):
     """
     Pose ou retire un drapeau sur la case (x,y) et teste la condition de victoire
     """
     tab_jeu = partie[PARTIE_TAB] # extrait le tableau de jeu du dictionnaire "partie"
-    case = tab_jeu[x][y]
+    case = tab_jeu[ligne][colonne]
 
-    if( case == VIDE_MASQUEE ):           # pose un drapeau
-        tab_jeu[x][y] = VIDE_FLAG  
+    if(case == VIDE_MASQUEE):           # pose un drapeau
+        tab_jeu[ligne][colonne] = VIDE_FLAG  
 
-    elif( case == VIDE_FLAG ):            # retire un drapeau
-        tab_jeu[x][y] = VIDE_MASQUEE
+    elif(case == VIDE_FLAG):            # retire un drapeau
+        tab_jeu[ligne][colonne] = VIDE_MASQUEE
 
-    elif( case == BOMB_MASQUEE ):         # pose un drapeau
-        tab_jeu[x][y] = BOMB_FLAG      
+    elif(case == BOMB_MASQUEE):         # pose un drapeau
+        tab_jeu[ligne][colonne] = BOMB_FLAG      
 
-    elif( case == BOMB_FLAG ):            # retire un drapeau
-        tab_jeu[x][y] = BOMB_MASQUEE
+    elif(case == BOMB_FLAG):            # retire un drapeau
+        tab_jeu[ligne][colonne] = BOMB_MASQUEE
+
 
     else:
         # case == VIDE_DEVOILE or case == BOMB_DEVOILE
         # on ne fait rien si la case est déja dévoilée
         pass
 
-    if( test_victoire( tab_jeu ) ):
+    if(test_victoire(tab_jeu)):
         partie[PARTIE_ETAT] = PARTIE_ETAT_GAGNE
 
 
 
-####################### traitement de l'action "abandonner" ou partie terminée #######################
+################ traitement de l'action "abandonner" ou partie terminée #################
 
 def abandonne(partie):
-    devoile( partie )
+    """
+    Permet de dévoiler le tableau et de recommencer une partie
+    """
+    devoile(partie)
     partie[PARTIE_ETAT] = PARTIE_ETAT_PERDU
 
 
 def recommence(partie):
+    """
+    Renvoie vers la page d'accueil
+    """
     partie[PARTIE_ETAT] = PARTIE_ETAT_INTIAL
 
 
@@ -169,31 +178,31 @@ def traite_action(partie, action, params):
     action = nom de l'action de jeu (nouvelle partie, creuse, drapeau, etc....)
     params = paramètres de l'action (ex : coordonnée de la case, type de partie a créer, etc... )
     """
-    # compteur de requetes
+    # compteur de requetes
     partie['nb_requetes'] += 1
     etat_partie = partie[PARTIE_ETAT]
 
 
-    # on commnence par traiter les actions avant 
+    # on commnence par traiter les actions avant 
     try:
 
-        if( action == ACTION_NOUVELLE_PARTIE ):
+        if(action == ACTION_NOUVELLE_PARTIE):
             nouvelle_partie(partie, params)
 
-        elif( action == ACTION_INTRO  ):
+        elif(action == ACTION_INTRO):
             # cette action ne modife pas l'état de la partie
             pass
 
-        elif( action == ACTION_CREUSE ):
-            creuse( partie, params[COORD_X], params[COORD_Y] )
+        elif(action == ACTION_CREUSE):
+            creuse(partie, params[COORD_X], params[COORD_Y])
 
-        elif( action == ACTION_FLAG ):
-            drapeau( partie, params[COORD_X], params[COORD_Y] )
+        elif(action == ACTION_FLAG):
+            drapeau(partie, params[COORD_X], params[COORD_Y])
 
-        elif( action == ACTION_ABANDON ):
+        elif(action == ACTION_ABANDON):
             abandonne(partie)
 
-        elif( action == ACTION_RECOMMENCE ):
+        elif(action == ACTION_RECOMMENCE):
             recommence(partie)
 
         else:
@@ -207,19 +216,19 @@ def traite_action(partie, action, params):
         print(e)
 
 
-    if( partie[PARTIE_ETAT] == PARTIE_ETAT_GAGNE or partie[PARTIE_ETAT] == PARTIE_ETAT_PERDU):
+    if(partie[PARTIE_ETAT] == PARTIE_ETAT_GAGNE or partie[PARTIE_ETAT] == PARTIE_ETAT_PERDU):
         devoile(partie)
 
-    # affichage dans la console 
-    debug_partie_console( partie, action, params )
+    # affichage dans la console 
+    debug_partie_console(partie, action, params)
 
     # genere la page HTML selon l'état de la partie après le traitement de l'action
     #  ou bien la page d'accueil si aucune partie n'est en cours
-    if( partie[PARTIE_ETAT] in [PARTIE_ETAT_INTIAL] ):
+    if(partie[PARTIE_ETAT] in [PARTIE_ETAT_INTIAL]):
         return genere_html_intro()
 
-    elif( partie[PARTIE_ETAT] in [PARTIE_ETAT_EN_COURS,PARTIE_ETAT_GAGNE,PARTIE_ETAT_PERDU]):
-        return genere_html_partie( partie )
+    elif(partie[PARTIE_ETAT] in [PARTIE_ETAT_EN_COURS,PARTIE_ETAT_GAGNE,PARTIE_ETAT_PERDU]):
+        return genere_html_partie(partie)
 
     else:
         print("Il y a un problème dans l'algorithme d'affichage de la partie")
@@ -230,57 +239,70 @@ def traite_action(partie, action, params):
 SYMBOLES_CONSOLE = {
     VIDE_MASQUEE : 'X ',
     BOMB_MASQUEE : 'Xb',
-    VIDE_DEVOILE : '. ',   # remplacé par le nb de bombes dans les cases voisines au moment de l'affichage
+    VIDE_DEVOILE : '. ',   
+    # remplacé par le nb de bombes dans les cases voisines au moment de l'affichage
     VIDE_FLAG    : 'F ',
     BOMB_FLAG    : 'Fb',
     BOMB_DEVOILE : 'B '
 }
 
 
-def formatte_tab_jeu_console( tab_jeu ):
+def formatte_tab_jeu_console(tab_jeu):         # aussi pour débugger
     """
     Genere une représentation du tableau de jeu en format texte
     """
     taille_x, taille_y = taille_tab_jeu(tab_jeu)
     tab_txt = []
-    for x in range( taille_x ):
+    for line in range(taille_x):
         ligne = []
-        for y in range( taille_y ):
-            case = tab_jeu[x][y]
-            if( case == VIDE_DEVOILE ):
-                txt = str(compte_bombes_voisines( tab_jeu, x, y ))    
-                if(len( txt ) == 1):
+        for colonne in range(taille_y):
+            case = tab_jeu[line][colonne]
+            if(case == VIDE_DEVOILE):
+                txt = str(compte_bombes_voisines(tab_jeu, line, colonne))    
+                if(len(txt) == 1):
                     txt = txt + " "
             else:
                 txt = SYMBOLES_CONSOLE[case]
-            ligne.append( str(txt) )
+            ligne.append(str(txt))
 
-        # pour chaque ligne, transforme la liste de cases en chaine de caracteres
+        # transforme la liste en chaine de caracteres
         ligne_txt = ' '.join(ligne)
         tab_txt.append(ligne_txt)
     
     return tab_txt
 
 
-def debug_partie_console( partie, action, params ):
+def formatte_partie_console(partie):
+    """
+    Genere une représenation de toutes les données de la partie en format texte
+    """
+    txt = ["---------------------------------------"]
+    for cle, valeur in partie.items():
+        if(cle != PARTIE_TAB):
+            txt.append(f"{cle} = {valeur}")     # met à jour le tableau
+
+    if(partie[PARTIE_ETAT] != PARTIE_ETAT_INTIAL):
+        txt = txt + formatte_tab_jeu_console(partie[PARTIE_TAB])
+
+    return txt
+
+def debug_partie_console(partie, action, params):
     """
     Genere une représenation de toutes les données de la partie en format texte
     """
     donnees = ["---------------------------------------"]   
-    # action effectuée
+    # action effectuée
     donnees += [ f"action = '{action}' paramtres = {params}"]
 
-    # données de la partie en cours
+    # données de la partie en cours
     for cle,valeur in partie.items():
-        if( cle != PARTIE_TAB ):
-            donnees.append( f"{cle} = {valeur}")     # met à jour le tableau
+        if(cle != PARTIE_TAB):
+            donnees.append( f"{cle} = {valeur}")  # met à jour le tableau
 
-    # tableau de jeu
-    if( partie[PARTIE_ETAT] != PARTIE_ETAT_INTIAL ):
-        donnees += formatte_tab_jeu_console( partie[PARTIE_TAB] )
+    # tableau de jeu
+    if(partie[PARTIE_ETAT] != PARTIE_ETAT_INTIAL):
+        donnees += formatte_tab_jeu_console(partie[PARTIE_TAB])
 
     # affiche l'ensemble sur la console
     for ligne in donnees:
-        print( ligne )
-
-
+        print(ligne)
