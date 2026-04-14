@@ -3,15 +3,21 @@
 status:
     docker compose ps
 
-deploy:
+deploy: pull build down up
+
+pull:
+
+build:
     docker compose build
+
+down:
+    docker compose down
+
+up:
     docker compose up -d
 
 restart:
     docker compose restart
-
-stop:
-    docker compose down
 
 logs *ARGS:
     docker compose logs {{ARGS}}
