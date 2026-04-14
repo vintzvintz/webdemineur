@@ -1,7 +1,7 @@
 services:
   demineur:
     build: .
-
+    container_name: "demineur"
     restart: always
 
     networks:
